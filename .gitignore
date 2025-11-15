@@ -1,0 +1,77 @@
+# -------------------------------------------------------------------
+# APIO / iCE40 / UPduino 3.1
+# -------------------------------------------------------------------
+#git add .
+#git commit -m "app"
+#git push origin main
+# Build directories
+.build/
+output/
+tmp/
+
+# Hardware database
+hardware.json
+
+# Bitstream and compilation outputs
+*.bin
+*.asc
+*.rpt
+*.log
+*.txt
+*.json
+*.idf
+*.pcf
+
+# Yosys / NextPNR intermediate files
+*.blif
+*.yslog
+*.tim
+*.im
+*.pnr
+
+# -------------------------------------------------------------------
+# Simulation files (ModelSim, Icarus, Verilator)
+# -------------------------------------------------------------------
+
+# ModelSim / Questa
+work/
+transcript
+vsim.wlf
+*.wlf
+*.mpf
+
+# Icarus Verilog
+a.out
+*.vvp
+
+# Verilator build output
+obj_dir/
+V*.h
+V*.cpp
+V*.mk
+*.d
+*.o
+
+# Waveform dumps
+*.vcd
+*.fst
+*.lxt
+*.lxt2
+
+# -------------------------------------------------------------------
+# Common editor / OS junk
+# -------------------------------------------------------------------
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Backup and temp files
+*.swp
+*.swo
+*.bak
+*~
+
+# OS
+.DS_Store
+Thumbs.db
