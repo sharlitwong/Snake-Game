@@ -1,25 +1,21 @@
 from PIL import Image
 
-# ---------------------------------------------------
+
 # Size of our image to generate in ROM memory
-# ---------------------------------------------------
 IMAGE_FILE = "redapple.png"      # your 20×20 apple
 SCREEN_WIDTH  = 20               # changed
 SCREEN_HEIGHT = 20               # changed
 SUPER_W = 20                     # unchanged (whole image is 1 superpixel)
 SUPER_H = 20                     # unchanged
 
-# ---------------------------------------------------
 # Load the image (also upload it to the Snake-Game foler!)
-# ---------------------------------------------------
 img = Image.open(IMAGE_FILE).convert("RGB")
 
 if img.size != (SCREEN_WIDTH, SCREEN_HEIGHT):
     raise ValueError(f"Image must be {SCREEN_WIDTH}x{SCREEN_HEIGHT}")
 
-# ---------------------------------------------------
+
 # Process the image and generate the colors
-# ---------------------------------------------------
 # Convert RGB888 → RGB222 (6-bit)
 def pack_6bit(r, g, b):
     r2 = r >> 6         # top 2 bits
