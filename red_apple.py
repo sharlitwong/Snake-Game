@@ -1,7 +1,7 @@
 from PIL import Image
 
 # ---------------------------------------------------
-# USER SETTINGS
+# Size of our image to generate in ROM memory
 # ---------------------------------------------------
 IMAGE_FILE = "redapple.png"      # your 20×20 apple
 SCREEN_WIDTH  = 20               # changed
@@ -10,7 +10,7 @@ SUPER_W = 20                     # unchanged (whole image is 1 superpixel)
 SUPER_H = 20                     # unchanged
 
 # ---------------------------------------------------
-# LOAD IMAGE
+# Load the image (also upload it to the Snake-Game foler!)
 # ---------------------------------------------------
 img = Image.open(IMAGE_FILE).convert("RGB")
 
@@ -18,7 +18,7 @@ if img.size != (SCREEN_WIDTH, SCREEN_HEIGHT):
     raise ValueError(f"Image must be {SCREEN_WIDTH}x{SCREEN_HEIGHT}")
 
 # ---------------------------------------------------
-# PROCESS AND PRINT ADDRESS + COLOR
+# Process the image and generate the colors
 # ---------------------------------------------------
 # Convert RGB888 → RGB222 (6-bit)
 def pack_6bit(r, g, b):
@@ -27,7 +27,7 @@ def pack_6bit(r, g, b):
     b2 = b >> 6
     return (r2 << 4) | (g2 << 2) | b2   # RRGGBB
 
-for super_y in range(0, SCREEN_HEIGHT, SUPER_H):
+for super_y in range(0, SCREEN_HEIGHT, SUPER_H): 
     for super_x in range(0, SCREEN_WIDTH, SUPER_W):
 
         # Process every pixel inside the current superpixel
