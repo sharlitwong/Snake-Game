@@ -7,7 +7,7 @@ module game_clk (
     output logic game_clk
 );
 
-always_ff @(posedge clk) begin
+always_ff @(posedge vga_clk) begin
     if (reset) begin
         count <= 0;
     end else begin
