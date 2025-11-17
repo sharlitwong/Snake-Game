@@ -8,3 +8,6 @@ module game_logic (
     output logic snake_V,
 );
 
+//do something
+
+endmodule

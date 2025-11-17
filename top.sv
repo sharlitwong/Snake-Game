@@ -4,3 +4,5 @@ module top (
     output logic VSYNC,
     output logic [5:0] RGB
 );
+
+endmodule

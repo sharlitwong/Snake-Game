@@ -8,3 +8,10 @@ module game_display (
     input logic valid,
     output logic [5:0] RGB
 );
+
+    always_comb begin
+        if (!valid) rgb = 6'd0;
+        else rgb = ...;
+    end
+
+endmodule
