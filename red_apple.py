@@ -3,11 +3,11 @@ from PIL import Image
 # ---------------------------------------------------
 # USER SETTINGS
 # ---------------------------------------------------
-IMAGE_FILE = "pixelart.png"      # your image file
-SCREEN_WIDTH  = 640
-SCREEN_HEIGHT = 480
-SUPER_W = 20
-SUPER_H = 20
+IMAGE_FILE = "redapple.png"      # your 20×20 apple
+SCREEN_WIDTH  = 20               # changed
+SCREEN_HEIGHT = 20               # changed
+SUPER_W = 20                     # unchanged (whole image is 1 superpixel)
+SUPER_H = 20                     # unchanged
 
 # ---------------------------------------------------
 # LOAD IMAGE
@@ -20,12 +20,12 @@ if img.size != (SCREEN_WIDTH, SCREEN_HEIGHT):
 # ---------------------------------------------------
 # PROCESS AND PRINT ADDRESS + COLOR
 # ---------------------------------------------------
-# Addressing scheme:
-#   address = y * SCREEN_WIDTH + x
-#
-# Color format:
-#   RGB (8-bit each) or hex 0xRRGGBB for FPGA ROM
-# ---------------------------------------------------
+# Convert RGB888 → RGB222 (6-bit)
+def pack_6bit(r, g, b):
+    r2 = r >> 6         # top 2 bits
+    g2 = g >> 6
+    b2 = b >> 6
+    return (r2 << 4) | (g2 << 2) | b2   # RRGGBB
 
 for super_y in range(0, SCREEN_HEIGHT, SUPER_H):
     for super_x in range(0, SCREEN_WIDTH, SUPER_W):
@@ -40,5 +40,9 @@ for super_y in range(0, SCREEN_HEIGHT, SUPER_H):
                 # Compute ROM address
                 address = y * SCREEN_WIDTH + x
 
-                # Print line:  address, hex color
-                print(f"{address:06d}: 0x{r:02X}{g:02X}{b:02X}")
+                # Convert to 6-bit color
+                pix6 = pack_6bit(r, g, b)
+
+                # Print ROM line: address, 6-bit hex
+                print(f"{address}: 0x{pix6:02X}")
+
