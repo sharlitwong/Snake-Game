@@ -25,7 +25,6 @@ def pack_6bit(r, g, b):
 
 for super_y in range(0, SCREEN_HEIGHT, SUPER_H): 
     for super_x in range(0, SCREEN_WIDTH, SUPER_W):
-
         # Process every pixel inside the current superpixel
         for y in range(super_y, super_y + SUPER_H):
             for x in range(super_x, super_x + SUPER_W):
