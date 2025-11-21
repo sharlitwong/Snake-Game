@@ -19,9 +19,24 @@ redapple my_apple (
     .data(rom_data)
 );
 
+    logic [25:0] counter;
+
+    count t_counter (
+        .clk(clk),
+        .counter(counter)
+    );
+    
+    
     localparam APPLE1_X0 = 0;   // OK (200 % 20 = 0)
     localparam APPLE1_Y0 = 0;   // OK (140 % 20 = 0)
     localparam SIZE = 20;        // 20×20 superpixel
+
+    always_comb begin
+        if(counter[20] == 1) begin
+            APPLE1_X0 = APPLE1_X0 + 20;
+            APPLE1_Y0 = APPLE1_Y0 + 20;
+        end
+    end
 
     logic [4:0] x_in_sprite1;
     logic [4:0] y_in_sprite1;
