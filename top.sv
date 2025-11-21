@@ -1,37 +1,60 @@
-module top (
-    input logic clock_in,
-    output logic clock_out,
-    output logic HSYNC,
-    output logic VSYNC,
-    output logic [5:0] RGB
-);
-
-    logic [9:0] row, col;
-    logic valid;
-
-    logic [9:0] row, col;
-    logic valid;
-
-    mypll my_pll (
-        .clock_in(clock_in),
-        .clock_out(clock_out)
+module top #( 
+	parameter N_CHANNELS = 2,
+	parameter ADDR_WIDTH = 4,
+    parameter CLK_HZ = 48000000,
+    parameter SAMPLE_HZ = 100
+    ) (
+        input logic button_record,
+        input logic [1:0] button_channel,
+        output logic [1:0] led
     );
 
-    vga my_vga (
-        .clk(clock_out),
-        .HSYNC(HSYNC),
-        .VSYNC(VSYNC),
-        .col(col),
-        .row(row),
-        .valid(valid)
+    logic clk;
+    logic [23:0] slow_counter;
+    logic w_en; 
+    logic [1:0] w_data;
+    logic [1:0] r_data;
+    logic [3:0] addr;
+
+    always_ff @(posedge clk) begin
+        slow_counter <= slow_counter + 1;
+        if (slow_counter == 24'b111111111111111111111111) begin 
+            slow_counter <= 0;
+            addr <= addr + 1;
+        end 
+    end 
+
+    ramdp #(
+        .WORD_SIZE (2),
+        .N_WORDS (16),
+        .ADDR_WIDTH (4)
+    )ramdp(
+        .w_data (~button_channel),
+        .r_data (led),
+        .r_addr (addr),
+        .w_addr (addr),
+        .w_enable (~button_record),
+        .clk (clk)
     );
 
-    game_display my_display (
-        .clk(clock_out),
-        .row(row),
-        .col(col),
-        .valid(valid),
-        .RGB(RGB)
-    );
+    SB_HFOSC #(
+    .CLKHF_DIV("0b00")   
+  ) osc (
+    .CLKHFPU(1'b1),      
+    .CLKHFEN(1'b1),      
+    .CLKHF(clk),
+    .TRIM0(1'b0), 
+    .TRIM1(1'b0),
+    .TRIM2(1'b0),
+    .TRIM3(1'b0),
+    .TRIM4(1'b0),
+    .TRIM5(1'b0),
+    .TRIM6(1'b0),
+    .TRIM7(1'b0),
+    .TRIM8(1'b0),   
+    .TRIM9(1'b0)      
+  );
+
+ 
 
 endmodule

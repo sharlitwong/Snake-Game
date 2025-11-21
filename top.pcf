@@ -1,0 +1,6 @@
+set_io  -pullup yes button_record     21
+set_io  -pullup yes button_channel[0] 13
+set_io  -pullup yes button_channel[1] 19
+
+set_io led[0]            18
+set_io led[1]            11
