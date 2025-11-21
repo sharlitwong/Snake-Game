@@ -8,7 +8,18 @@ module game_logic (
     output logic snake_V,
 );
 
-//head movement logic
+logic C, reset, move_dir;
+
+//head movement logic module
+head (
+    .in_dir(dir),
+    .C(),
+    .reset(reset),
+    .game_clk(game_clk),
+    .move_dir(move_dir)
+);
+
+//logic to determine head/body positions
 
 //collision check
 
