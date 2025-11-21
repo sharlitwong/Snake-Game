@@ -13,28 +13,29 @@ module game_display (
     logic [5:0] rom_data;
     logic [8:0] rom_addr;
 
-redapple my_apple (
-    .clk(clk),
-    .addr(rom_addr),
-    .data(rom_data)
-);
+    redapple my_apple (
+        .clk(clk),
+        .addr(rom_addr),
+        .data(rom_data)
+    );
 
-    logic [25:0] counter;
+    logic [22:0] counter;
 
     count t_counter (
         .clk(clk),
         .counter(counter)
     );
     
-    
-    localparam APPLE1_X0 = 0;   // OK (200 % 20 = 0)
-    localparam APPLE1_Y0 = 0;   // OK (140 % 20 = 0)
+    logic [9:0] APPLE1_X0 = 40;   // OK (200 % 20 = 0)
+    logic [9:0] APPLE1_Y0 = 40;   // OK (140 % 20 = 0)
     localparam SIZE = 20;        // 20×20 superpixel
 
-    always_comb begin
-        if(counter[20] == 1) begin
-            APPLE1_X0 = APPLE1_X0 + 20;
-            APPLE1_Y0 = APPLE1_Y0 + 20;
+
+
+    always_ff @(posedge clk) begin
+        if (counter == 0) begin
+            APPLE1_X0 <= APPLE1_X0 + 9'd20;
+            APPLE1_Y0 <= APPLE1_Y0 + 9'd20;
         end
     end
 

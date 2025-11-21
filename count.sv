@@ -1,9 +1,10 @@
+//test count module for moving apple
 module count(
     input logic clk,
-    output logic[25:0] counter
+    output logic[22:0] counter
 );
     always_ff @(posedge clk) begin
-        if(counter == 26'h3FFFFFF) counter <= 26'b0;
+        if(counter == 23'h3FFFFF) counter <= 23'b0;
         else counter <= counter + 1;
     end
 endmodule
