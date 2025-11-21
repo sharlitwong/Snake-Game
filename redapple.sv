@@ -1,13 +1,13 @@
-module rom_7seg(
+module redapple (
     input logic clk,
     input logic [8:0] addr,
-    output logic [6:0] data
+    output logic [5:0] data
 );
     always_ff @(posedge clk) begin
         data <= data_comb;
     end
 
-    logic [6:0] data_comb;
+    logic [5:0] data_comb;
 
     always_comb begin
         case(addr)
@@ -410,7 +410,8 @@ module rom_7seg(
             9'b110001100: data_comb = 6'b000000;
             9'b110001101: data_comb = 6'b000000;
             9'b110001110: data_comb = 6'b000000;
-            9'b110001111: data_comb = 6'b000000;      
+            9'b110001111: data_comb = 6'b000000;   
+            default: data_comb = 6'b000000;   
         endcase
     end
 endmodule

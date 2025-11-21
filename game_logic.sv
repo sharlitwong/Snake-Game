@@ -11,15 +11,15 @@ module game_logic (
 logic C, reset, move_dir;
 
 //head movement logic module
-head (
+head my_head (
     .in_dir(dir),
-    .C(),
+    .C(C),
     .reset(reset),
     .game_clk(game_clk),
     .move_dir(move_dir)
 );
 
-//logic to determine head/body positions
+//logic to determine head/body positions (RAM)
 
 //collision check
 

@@ -11,8 +11,8 @@ module random (
 );
 
 always_ff @(posedge vga_clk) begin
-    newfood_H <= (7 * oldfood_H + count) mod 20;
-    newfood_V <= (3 * oldfood_V + count) mod 20;
+    newfood_H <= (7 * oldfood_H + count) % 20;
+    newfood_V <= (3 * oldfood_V + count) % 20;
 end
 
 endmodule
