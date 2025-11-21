@@ -8,6 +8,13 @@ module game_logic (
     output logic snake_V,
 );
 
-//do something
+//head movement logic
+
+//collision check
+
+//food collision
+
+//wall collision or body collision
+
 
 endmodule
