@@ -34,5 +34,4 @@ module nes_read (
         if (NEScount == 8)
             data_out <= ~temp_data_out;
     end
-
 endmodule

@@ -13,7 +13,7 @@ module game_display (
     logic [5:0] rom_data;
     logic [8:0] rom_addr;
 
-    redapple my_apple (
+    zero my_apple (
         .clk(clk),
         .addr(rom_addr),
         .data(rom_data)
