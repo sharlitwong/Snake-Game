@@ -20,7 +20,7 @@ hardware.json
 *.txt
 *.json
 *.idf
-*.pcf
+#*.pcf
 
 # Yosys / NextPNR intermediate files
 *.blif
