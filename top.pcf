@@ -1,6 +1,17 @@
-set_io  -pullup yes button_record     21
-set_io  -pullup yes button_channel[0] 13
-set_io  -pullup yes button_channel[1] 19
+#set_io  -pullup yes button_record     21
+#set_io  -pullup yes button_channel[0] 13
+#set_io  -pullup yes button_channel[1] 19
 
-set_io led[0]            18
-set_io led[1]            11
+#set_io led[0]            18
+#set_io led[1]            11
+
+set_io clock_in 20
+set_io clock_out 12
+set_io HSYNC 28
+set_io VSYNC 38
+set_io RGB[0] 2
+set_io RGB[1] 46
+set_io RGB[2] 47
+set_io RGB[3] 45
+set_io RGB[4] 48
+set_io RGB[5] 3
