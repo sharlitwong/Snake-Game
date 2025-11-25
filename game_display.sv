@@ -13,30 +13,37 @@ module game_display (
     logic [5:0] rom_data;
     logic [8:0] rom_addr;
 
-    zero my_apple (
+    redapple my_apple (
         .clk(clk),
         .addr(rom_addr),
         .data(rom_data)
     );
 
-    logic [22:0] counter;
+    logic [21:0] counter;
+    logic game_clk;
+    logic [9:0] newfood_H;
+    logic [9:0] newfood_V;
 
-    count t_counter (
-        .clk(clk),
-        .counter(counter)
+    game_clk my_game_clk (
+        .vga_clk(clk),
+        .count(counter),
+        .game_clk(game_clk)
     );
+
+    random my_random (
+    .vga_clk(clk),
+    .newfood_H(newfood_H),
+    .newfood_V(newfood_V)
+);
     
     logic [9:0] APPLE1_X0 = 40;   // OK (200 % 20 = 0)
     logic [9:0] APPLE1_Y0 = 40;   // OK (140 % 20 = 0)
     localparam SIZE = 20;        // 20×20 superpixel
 
 
-
-    always_ff @(posedge clk) begin
-        if (counter == 0) begin
-            APPLE1_X0 <= APPLE1_X0 + 9'd20;
-            APPLE1_Y0 <= APPLE1_Y0 + 9'd20;
-        end
+    always_ff @(posedge game_clk) begin
+            APPLE1_X0 <= newfood_H * 20;
+            APPLE1_Y0 <= newfood_V * 20;
     end
 
     logic [4:0] x_in_sprite1;

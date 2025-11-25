@@ -2,13 +2,13 @@
 
 module game_clk (
     input logic vga_clk,
-    input logic reset,
+ //   input logic reset,
     output logic [21:0] count,
     output logic game_clk
 );
 
 always_ff @(posedge vga_clk) begin
-    if (reset) begin
+    if (count == 22'h3FFFFF) begin
         count <= 0;
     end else begin
         count <= count + 1;
