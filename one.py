@@ -1,7 +1,7 @@
 from PIL import Image
 
 # Size of our image to generate in ROM memory
-IMAGE_FILE = "zero.png"      # your 20×20 apple
+IMAGE_FILE = "9.png"      # your 20×20 apple
 SCREEN_WIDTH  = 20
 SCREEN_HEIGHT = 20
 SUPER_W = 20
