@@ -51,6 +51,31 @@ module game_display (
 
     logic inside_apple1;
 
+    logic [9:0] GREEN_X0 = 10 * SIZE;
+    logic [9:0] GREEN_Y0 = 10 * SIZE;
+
+    logic inside_green;
+
+    assign inside_green =
+        (col >= GREEN_X0) &&
+        (col <  GREEN_X0 + SIZE) &&
+        (row >= GREEN_Y0) &&
+        (row <  GREEN_Y0 + SIZE);
+
+    always_comb begin
+        RGB = 6'd0;  // background
+
+        // Apple (sprite)
+        if (valid && inside_apple1)
+            RGB = rom_data;
+
+        // Green square (solid)
+        else if (valid && inside_green)
+            RGB = 6'b00_1100;  // green (choose any)
+    end
+
+
+
     // Check bounds
     assign inside_apple1 = (col >= APPLE1_X0 &&
             col <  APPLE1_X0 + SIZE &&

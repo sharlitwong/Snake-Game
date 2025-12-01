@@ -1,7 +1,7 @@
 // Scale down the 25.2MHz clock to ~6Hz clock
 
 module game_clk (
-    input logic vga_clk,
+    input logic vga_clk, 
  //   input logic reset,
     output logic [21:0] count,
     output logic game_clk
