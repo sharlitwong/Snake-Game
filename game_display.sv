@@ -8,21 +8,12 @@ module game_display (
     input logic [9:0] col,
     input logic valid,
     output logic [5:0] RGB
-);
-    // Instantiate ROM
-    logic [5:0] rom_data;
-    logic [8:0] rom_addr;
+);    
 
-    redapple my_apple (
-        .clk(clk),
-        .addr(rom_addr),
-        .data(rom_data)
-    );
-
+/*********************************GAME_CLOCK***********************************/
+    //initiate game clock
     logic [21:0] counter;
     logic game_clk;
-    logic [9:0] newfood_H;
-    logic [9:0] newfood_V;
 
     game_clk my_game_clk (
         .vga_clk(clk),
@@ -30,51 +21,45 @@ module game_display (
         .game_clk(game_clk)
     );
 
+/*********************************ROM******************************************/
+
+    // Instantiate ROM
+    logic [5:0] rom_data;
+    logic [8:0] rom_addr;
+
+/*********************************APPLE****************************************/
+
+    //initiate the variables for food position
+    logic [9:0] newfood_H;
+    logic [9:0] newfood_V;
+    logic [9:0] APPLE1_X0 = 40;   // OK (200 % 20 = 0)
+    logic [9:0] APPLE1_Y0 = 40;   // OK (140 % 20 = 0)
+    localparam SIZE = 20;        // 20×20 superpixel of the game frame    
+    
+    //apple internal coordinates
+    logic [4:0] x_in_sprite1;
+    logic [4:0] y_in_sprite1;
+    logic inside_apple1;    
+
+    //Initialize apple ROM
+    redapple my_apple (
+        .clk(clk),
+        .addr(rom_addr),
+        .data(rom_data)
+    );
+
+    //module to generate random apple positions
     random my_random (
     .vga_clk(clk),
     .newfood_H(newfood_H),
     .newfood_V(newfood_V)
-);
+    );
     
-    logic [9:0] APPLE1_X0 = 40;   // OK (200 % 20 = 0)
-    logic [9:0] APPLE1_Y0 = 40;   // OK (140 % 20 = 0)
-    localparam SIZE = 20;        // 20×20 superpixel
-
-
+    //new position updated every clock cycle
     always_ff @(posedge game_clk) begin
             APPLE1_X0 <= newfood_H * 20;
             APPLE1_Y0 <= newfood_V * 20;
     end
-
-    logic [4:0] x_in_sprite1;
-    logic [4:0] y_in_sprite1;
-
-    logic inside_apple1;
-
-    logic [9:0] GREEN_X0 = 10 * SIZE;
-    logic [9:0] GREEN_Y0 = 10 * SIZE;
-
-    logic inside_green;
-
-    assign inside_green =
-        (col >= GREEN_X0) &&
-        (col <  GREEN_X0 + SIZE) &&
-        (row >= GREEN_Y0) &&
-        (row <  GREEN_Y0 + SIZE);
-
-    always_comb begin
-        RGB = 6'd0;  // background
-
-        // Apple (sprite)
-        if (valid && inside_apple1)
-            RGB = rom_data;
-
-        // Green square (solid)
-        else if (valid && inside_green)
-            RGB = 6'b00_1100;  // green (choose any)
-    end
-
-
 
     // Check bounds
     assign inside_apple1 = (col >= APPLE1_X0 &&
@@ -86,8 +71,8 @@ module game_display (
     always_comb begin
         x_in_sprite1 = col - APPLE1_X0;
         y_in_sprite1 = row - APPLE1_Y0;
-    end
-       
+    end    
+
     // Address ROM
     always_comb begin
         if (inside_apple1) 
@@ -96,9 +81,43 @@ module game_display (
             rom_addr = 0;
     end
 
+/*********************************SNAKE****************************************/
+    //Variables for snake positions
+    logic [9:0] GREEN_X0 = 10 * SIZE;
+    logic [9:0] GREEN_Y0 = 10 * SIZE;
+    logic inside_green;
+
+    //determine if is inside snake
+    assign inside_green =
+        (col >= GREEN_X0) &&
+        (col <  GREEN_X0 + SIZE) &&
+        (row >= GREEN_Y0) &&
+        (row <  GREEN_Y0 + SIZE);
+
+/**********************************STRIPE**************************************/
+    localparam STRIPE_COL = 24;
+    localparam STRIPE_X0  = STRIPE_COL * SIZE;   // SIZE = 20
+
+    logic inside_stripe;
+
+    assign inside_stripe =
+        (col >= STRIPE_X0) &&
+        (col <  STRIPE_X0 + SIZE);
+
+/**********************************DISPLAY*************************************/  
     always_comb begin
-        RGB = 6'd0;               // background
-        if (valid && inside_apple1)
+        RGB = 6'd0;  // background
+
+        // Stripe (solid white)
+        if (valid && inside_stripe)
+            RGB = 6'b11_1111;   // white
+
+        // Green square (solid)
+        else if (valid && inside_green)
+            RGB = 6'b00_1100;  // green (choose any)   \
+
+        // Apple (sprite)
+        else if (valid && inside_apple1)
             RGB = rom_data;
     end
 
