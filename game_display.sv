@@ -148,7 +148,7 @@ module game_display (
     always_comb begin
         RGB = 6'd0;  // background
         if (valid && inside_score)
-            RGB = rom_addr_score;
+            RGB = rom_data_score;
 
         // Stripe (solid white)
         if (valid && inside_stripe)
