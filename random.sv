@@ -2,7 +2,7 @@
 // counter number.
 
 module random (
-    input logic vga_clk,
+    input logic game_clk,
     output logic [9:0] newfood_H,
     output logic [9:0] newfood_V
 );
@@ -10,7 +10,7 @@ module random (
     logic [9:0] lfsr_H = 10'b1;   // cannot start at 0
     logic [9:0] lfsr_V = 10'b101; // a different seed
 
-    always_ff @(posedge vga_clk) begin
+    always_ff @(posedge game_clk) begin
         // taps for maximal-length 10-bit LFSR: x^10 + x^7 + 1 
         lfsr_H <= {lfsr_H[8:0], lfsr_H[9] ^ lfsr_H[6]};
         lfsr_V <= {lfsr_V[8:0], lfsr_V[9] ^ lfsr_V[6]};

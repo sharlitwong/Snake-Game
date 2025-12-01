@@ -26,6 +26,9 @@ module game_display (
     // Instantiate ROM
     logic [5:0] rom_data;
     logic [8:0] rom_addr;
+    logic [5:0] rom_data_score;
+    logic [10:0] rom_addr_score;
+
 
 /*********************************APPLE****************************************/
 
@@ -50,14 +53,14 @@ module game_display (
 
     //module to generate random apple positions
     random my_random (
-    .vga_clk(clk),
+    .game_clk(game_clk),
     .newfood_H(newfood_H),
     .newfood_V(newfood_V)
     );
     
     //new position updated every clock cycle
     always_ff @(posedge game_clk) begin
-            APPLE1_X0 <= newfood_H * 20;
+            APPLE1_X0 <= (newfood_H) * 20;
             APPLE1_Y0 <= newfood_V * 20;
     end
 
@@ -95,7 +98,7 @@ module game_display (
         (row <  GREEN_Y0 + SIZE);
 
 /**********************************STRIPE**************************************/
-    localparam STRIPE_COL = 24;
+    localparam STRIPE_COL = 21;
     localparam STRIPE_X0  = STRIPE_COL * SIZE;   // SIZE = 20
 
     logic inside_stripe;
@@ -104,9 +107,48 @@ module game_display (
         (col >= STRIPE_X0) &&
         (col <  STRIPE_X0 + SIZE);
 
+/********************************SCORE_DISPLAY*********************************/
+    logic [9:0] SCORE_X0 = 420;   // OK (200 % 20 = 0)
+    logic [9:0] SCORE_Y0 = 40;   // OK (140 % 20 = 0)
+    logic inside_score;
+    localparam SCORE_SIZE_X = 100;
+    localparam SCORE_SIZE_Y = 20;
+    logic [6:0] x_in_score;
+    logic [4:0] y_in_score;
+
+    //Initialize score ROM
+    score my_score (
+        .clk(clk),
+        .addr(rom_addr_score),
+        .data(rom_data_score)
+    );
+
+    //determine if is inside snake
+    assign inside_score =
+        (col >= SCORE_X0) &&
+        (col <  SCORE_X0 + SCORE_SIZE_X) &&
+        (row >= SCORE_Y0) &&
+        (row <  SCORE_Y0 + SCORE_SIZE_Y);
+
+    // Compute local coordinates
+    always_comb begin
+        x_in_score = col - SCORE_X0;
+        y_in_score = row - SCORE_Y0;
+    end    
+
+    // Address ROM
+    always_comb begin
+        if (inside_score) 
+            rom_addr_score = y_in_score * SCORE_SIZE_X + x_in_score;  // 0..399
+        else
+            rom_addr_score = 0;
+    end
+
 /**********************************DISPLAY*************************************/  
     always_comb begin
         RGB = 6'd0;  // background
+        if (valid && inside_score)
+            RGB = rom_addr_score;
 
         // Stripe (solid white)
         if (valid && inside_stripe)
@@ -119,6 +161,7 @@ module game_display (
         // Apple (sprite)
         else if (valid && inside_apple1)
             RGB = rom_data;
+
     end
 
 endmodule
