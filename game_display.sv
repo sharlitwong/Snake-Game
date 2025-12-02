@@ -7,7 +7,8 @@ module game_display (
     input logic [9:0] row,
     input logic [9:0] col,
     input logic valid,
-    output logic [5:0] RGB
+    output logic [5:0] RGB,
+    input logic [9:0] board_value
 );    
 
 /*********************************GAME_CLOCK***********************************/
@@ -161,7 +162,11 @@ module game_display (
         // Apple (sprite)
         else if (valid && inside_apple1)
             RGB = rom_data;
-
+        //moving the snake
+        if(valid) begin
+            if(board_value != 8'd0)
+            RGB = 6'b00_1111;
+        end 
     end
 
 endmodule

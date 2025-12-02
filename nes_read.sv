@@ -1,14 +1,24 @@
 module nes_read (
     input logic data,
-    output logic [7:0] data_out
+    output logic [1:0] nes_data,
+    output logic reset,
+    output logic clock,
+    output logic latch    
 );
-    //Devanshi's NES code
+
     logic NESclk;
     logic [11:0] NEScount;
     logic clk;
     logic [7:0] temp_data_out;
-    logic clock;
-    logic latch;
+    logic [7:0] data_out;
+
+    SB_HFOSC #(
+        .CLKHF_DIV("0b00")  
+    ) osc (
+        .CLKHFPU(1'b1),      
+        .CLKHFEN(1'b1),      
+        .CLKHF(clk)      
+    );
 
     logic [20:0] counter = 21'd0;
 
@@ -34,4 +44,18 @@ module nes_read (
         if (NEScount == 8)
             data_out <= ~temp_data_out;
     end
+
+
+    always_comb begin
+        case(data_out)
+        8'b00001000: nes_data = 7'b0000001; // up
+        8'b00000100: nes_data = 7'b1001111; // down
+        8'b00000010: nes_data = 7'b0010010; // left
+        8'b00000001: nes_data = 7'b0000110; // right
+        8'b00010000: reset = 1'b1; // reset
+        endcase
+    end
+
+
+
 endmodule

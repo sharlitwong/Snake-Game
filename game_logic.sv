@@ -29,8 +29,8 @@ assign C = 1'b0;
 
 //converting the 2d board coordinates into 1d ram address
 function automatic [ADDR_WIDTH-1:0] cell_addr (
-input logic [4:0] x,
-input logic [4:0] y
+    input logic [4:0] x,
+    input logic [4:0] y
 );
 cell_addr = y * BOARD_W + x; // y*24 + x
 endfunction
@@ -44,6 +44,16 @@ assign snake_V = head_y;
 //detecting clock edges
 logic game_clk_prev;
 wire game_tick = game_clk & ~game_clk_prev;
+
+//data read from nes
+nes_read my_nes (
+    .data,
+    .nes_data(dir),
+    .reset(reset),
+    .clock,
+    .latch    
+);
+
 
 //head movement logic module
 head my_head (

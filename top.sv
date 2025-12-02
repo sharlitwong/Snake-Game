@@ -122,11 +122,11 @@ game_logic #(
 .snake_H (), // ignore for now
 .snake_V (),
 
-.game_r_addr (game_r_addr),
-.game_r_data (game_r_data),
-.game_w_addr (game_w_addr),
-.game_w_data (game_w_data),
-.game_w_enable (game_w_enable)
+.r_addr (r_addr),
+.r_data (r_data),
+.w_addr (w_addr),
+.w_data (w_data),
+.w_enable (w_enable)
 );
 
 game_display my_display (
@@ -134,7 +134,8 @@ game_display my_display (
 .row(row),
 .col(col),
 .valid(valid),
-.RGB(RGB)
+.RGB(RGB),
+.board_value(board_value_from_ram)
 );
 
 endmodule
