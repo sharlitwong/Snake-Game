@@ -97,6 +97,10 @@ module game_display (
         (col <  GREEN_X0 + SIZE) &&
         (row >= GREEN_Y0) &&
         (row <  GREEN_Y0 + SIZE);
+    
+   game_logic my_logic (
+    
+   ) 
 
 /**********************************STRIPE**************************************/
     localparam STRIPE_COL = 21;

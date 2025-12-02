@@ -35,7 +35,7 @@
 
 module top (
 input logic clock_in,
-input logic reset,
+// input logic reset,
 output logic HSYNC,
 output logic VSYNC,
 output logic [5:0] RGB
@@ -121,7 +121,7 @@ game_logic #(
     .snake_H (), // ignore for now
     .snake_V (),
 
-    .reset(1'b0), //just this for now 
+    // .reset(1'b0), //just this for now 
     .game_r_addr   (game_r_addr),
     .game_r_data   (game_r_data),
     .game_w_addr   (game_w_addr),
