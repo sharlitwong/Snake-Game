@@ -35,7 +35,7 @@
 
 module top (
 input logic clock_in,
-//input logic reset,
+input logic reset,
 output logic HSYNC,
 output logic VSYNC,
 output logic [5:0] RGB
@@ -62,10 +62,10 @@ assign cell_y = row / SUPERPIXEL;
 
 assign vga_board_addr = cell_y * BOARD_W + cell_x;
 
-//ram
-logic [9:0] r_addr, w_addr;
-logic [7:0] r_data, w_data;
-logic w_enable;
+ // RAM wires (game side)
+    logic [9:0] game_r_addr, game_w_addr;
+    logic [7:0] game_r_data, game_w_data;
+    logic       game_w_enable;
 
 logic [1:0] dir;
 logic food_H, food_V;
@@ -81,52 +81,52 @@ game_clk game_clk_inst (
 );
 
 mypll my_pll (
-.clock_in(clock_in),
-.clock_out(clock_out)
+    .clock_in(clock_in),
+    .clock_out(clock_out)
 );
 
 vga my_vga (
-.clk(clock_out),
-.HSYNC(HSYNC),
-.VSYNC(VSYNC),
-.col(col),
-.row(row),
-.valid(valid)
+    .clk(clock_out),
+    .HSYNC(HSYNC),
+    .VSYNC(VSYNC),
+    .col(col),
+    .row(row),
+    .valid(valid)
 );
 
 ramdp ram_inst (
-.clk (clock_out),
+    .clk        (clock_out),
+    .r_addr     (game_r_addr),
+    .r_data     (game_r_data),
+    .w_addr     (game_w_addr),
+    .w_data     (game_w_data),
+    .w_enable   (game_w_enable),
 
-.r_addr (r_addr),
-.r_data (r_data),
-.w_addr (w_addr),
-.w_data (w_data),
-.w_enable (w_enable),
-
-.vga_r_addr (vga_board_addr),
-.vga_r_data (board_value_from_ram)
+    .vga_r_addr (vga_board_addr),
+    .vga_r_data (board_value_from_ram)
 );
 
 game_logic #(
-.BOARD_W (24),
-.BOARD_H (24),
-.ADDR_WIDTH (10)
+    .BOARD_W (24),
+    .BOARD_H (24),
+    .ADDR_WIDTH (10)
 ) game_inst (
-.clk (clock_out),
-.game_clk (game_clk),
-.dir (dir), // for now maybe constant
-//.reset (reset),
-.food_H (food_H),
-.food_V (food_V),
+    .clk (clock_out),
+    .game_clk (game_clk),
+    .dir (dir), // for now maybe constant
+    //.reset (reset),
+    .food_H (food_H),
+    .food_V (food_V),
 
-.snake_H (), // ignore for now
-.snake_V (),
+    .snake_H (), // ignore for now
+    .snake_V (),
 
-.r_addr (r_addr),
-.r_data (r_data),
-.w_addr (w_addr),
-.w_data (w_data),
-.w_enable (w_enable)
+    .reset(1'b0), //just this for now 
+    .game_r_addr   (game_r_addr),
+    .game_r_data   (game_r_data),
+    .game_w_addr   (game_w_addr),
+    .game_w_data   (game_w_data),
+    .game_w_enable (game_w_enable)
 );
 
 game_display my_display (

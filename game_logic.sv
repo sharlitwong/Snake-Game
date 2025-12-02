@@ -1,25 +1,25 @@
 module game_logic #(
-parameter BOARD_W = 24,
-parameter BOARD_H = 24,
-parameter ADDR_WIDTH = 10
+    parameter BOARD_W = 24,
+    parameter BOARD_H = 24,
+    parameter ADDR_WIDTH = 10
 ) (
-input logic clk, //fast clock
-input logic game_clk, //6Hz
-input logic [1:0] dir,
-input logic reset,
-//not used yet
-input logic food_H,
-input logic food_V,
+    input logic clk, //fast clock
+    input logic game_clk, //6Hz
+    input logic [1:0] dir,
+    input logic reset,
+    //not used yet
+    input logic food_H,
+    input logic food_V,
 
-output logic [4:0] snake_H,
-output logic [4:0] snake_V,
+    output logic [4:0] snake_H,
+    output logic [4:0] snake_V,
 
-// RAM interface (game side)
-output logic [ADDR_WIDTH-1:0] game_r_addr,
-input logic [7:0] game_r_data, // not used yet
-output logic [ADDR_WIDTH-1:0] game_w_addr,
-output logic [7:0] game_w_data,
-output logic game_w_enable
+    // RAM interface (game side)
+    output logic [ADDR_WIDTH-1:0] game_r_addr,
+    input logic [7:0] game_r_data, // not used yet
+    output logic [ADDR_WIDTH-1:0] game_w_addr,
+    output logic [7:0] game_w_data,
+    output logic game_w_enable
 );
 logic C;
 logic [1:0] move_dir;
@@ -46,22 +46,22 @@ logic game_clk_prev;
 wire game_tick = game_clk & ~game_clk_prev;
 
 //data read from nes
-nes_read my_nes (
-    .data,
-    .nes_data(dir),
-    .reset(reset),
-    .clock,
-    .latch    
-);
+// nes_read my_nes (
+//     .data,
+//     .nes_data(dir),
+//     .reset(reset),
+//     .clock,
+//     .latch    
+// );
 
 
 //head movement logic module
 head my_head (
-.in_dir(dir),
-.C(C),
-.reset(reset),
-.game_clk(game_clk),
-.move_dir(move_dir)
+    .in_dir(dir),
+    .C(C),
+    .reset(reset),
+    .game_clk(game_clk),
+    .move_dir(move_dir)
 );
 
 //fsm: wait -> clear old cell -> set new cell
