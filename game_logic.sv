@@ -42,7 +42,8 @@ logic [4:0] prev_x, prev_y;
 
 assign snake_H = head_x;
 assign snake_V = head_y;
-//detecting clock edges
+
+//detecting game_clock edges
 logic game_clk_prev;
 wire game_tick = game_clk & ~game_clk_prev;
 
@@ -54,7 +55,6 @@ wire game_tick = game_clk & ~game_clk_prev;
 //     .clock,
 //     .latch    
 // );
-
 
 //head movement logic module
 head my_head (
