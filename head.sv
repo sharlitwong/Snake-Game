@@ -11,34 +11,34 @@ module head (
     output logic [1:0] move_dir
 );
 
-typedef enum logic [1:0] {
-    UP    = 2'b00,
-    DOWN  = 2'b01,
-    LEFT  = 2'b10,
-    RIGHT = 2'b11
-} dir_t;
+    typedef enum logic [1:0] {
+        UP    = 2'b00,
+        DOWN  = 2'b01,
+        LEFT  = 2'b10,
+        RIGHT = 2'b11
+    } dir_t;
 
-dir_t state, next_state;
+    dir_t state, next_state;
 
-always_ff @(posedge game_clk) begin
-    if (reset)
-        state <= RIGHT;
-    else
-        state <= next_state;
-end
-   
-always_comb begin
-    next_state = state;
-    if (!C) begin
-        case (in_dir)
-            UP   : if (state != DOWN) next_state = UP;
-            DOWN : if (state != UP) next_state = DOWN;
-            LEFT : if (state != RIGHT) next_state = LEFT;
-            RIGHT: if (state != LEFT) next_state = RIGHT;
-        endcase
+    always_ff @(posedge game_clk) begin
+        if (reset)
+            state <= RIGHT;
+        else
+            state <= next_state;
     end
-end
+    
+    always_comb begin
+        next_state = state;
+        if (!C) begin
+            case (in_dir)
+                UP   : if (state != DOWN) next_state = UP;
+                DOWN : if (state != UP) next_state = DOWN;
+                LEFT : if (state != RIGHT) next_state = LEFT;
+                RIGHT: if (state != LEFT) next_state = RIGHT;
+            endcase
+        end
+    end
 
-assign move_dir = next_state;
+    assign move_dir = next_state;
 
 endmodule
