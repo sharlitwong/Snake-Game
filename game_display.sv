@@ -8,7 +8,6 @@ module game_display (
     input logic [9:0] col,
     input logic valid,
     output logic [5:0] RGB,
-    input logic [9:0] board_value,
     input logic [18:0] vga_r_addr,
     input logic [WORD_SIZE - 1:0] vga_r_data
 );    

@@ -34,7 +34,7 @@
 // endmodule
 
 module top (
-    input logic clock_in,
+    input logic clock_in,   //12MHz
     output logic clock_out;
     // input logic reset,
     output logic HSYNC,
@@ -45,6 +45,7 @@ module top (
 logic clock_out;
 logic game_clk;
 logic [21:0] count;
+logic fast_clk;
 
 logic [9:0] row, col;
 logic valid;
@@ -54,26 +55,17 @@ logic valid;
 localparam int SUPERPIXEL = 20;
 localparam int BOARD_W = 24;
 
-logic [4:0] cell_x, cell_y;
-logic [9:0] vga_board_addr;
-logic [7:0] board_value_from_ram;
-
-assign cell_x = col / SUPERPIXEL;
-assign cell_y = row / SUPERPIXEL;
-
-assign vga_board_addr = cell_y * BOARD_W + cell_x;
-
  // RAM wires (game side)
     logic [9:0] game_r_addr, game_w_addr;
     logic [7:0] game_r_data, game_w_data;
     logic       game_w_enable;
+    logic [18:0] vga_r_addr,
+    logic [5:0]  vga_r_data,
+    logic        vga_r_we
 
 logic [1:0] dir;
-logic food_H, food_V;
+logic [4:0] food_H, food_V, snake_H, snake_V;
 
-assign dir = 2'b11; // TEMP: always "move right"
-assign food_H = 1'b0;
-assign food_V = 1'b0;
 
 game_clk game_clk_inst (
 .vga_clk(clock_out),
@@ -93,6 +85,26 @@ vga my_vga (
     .col(col),
     .row(row),
     .valid(valid)
+);
+
+    // HSOSC component -> On chip oscillator
+    SB_HFOSC #(
+        .CLKHF_DIV("0b00")
+    ) osc (
+        .CLKHFPU(1'b1), // Power up
+        .CLKHFEN(1'b1), // Enable
+        .CLKHF(fast_clk) // Clock output
+    );
+
+stuff my_stuff (
+    .fast_clk(fast_clk),
+    .food_H(food_H),
+    .food_V(food_V),
+    .snake_H(snake_H),
+    .snake_V(snake_V),
+    .vga_r_addr(vga_r_addr),
+    .vga_r_data(vga_r_data),
+    .vga_r_we(vga_r_we)
 );
 
 ramdp ram_inst (
@@ -119,8 +131,8 @@ game_logic #(
     .food_H (food_H),
     .food_V (food_V),
 
-    .snake_H (), // ignore for now
-    .snake_V (),
+    .snake_H (snake_H), // ignore for now
+    .snake_V (snake_V),
 
     // .reset(1'b0), //just this for now 
     .game_r_addr   (game_r_addr),
@@ -131,14 +143,13 @@ game_logic #(
 );
 
 game_display my_display (
-.clk(clock_out),
-.row(row),
-.col(col),
-.valid(valid),
-.RGB(RGB),
-.board_value(board_value_from_ram),
-.vga_r_addr(vga_r_addr),
-.vga_r_data(vga_r_data)
+    .clk(clock_out),
+    .row(row),
+    .col(col),
+    .valid(valid),
+    .RGB(RGB),
+    .vga_r_addr(vga_r_addr),
+    .vga_r_data(vga_r_data)
 );
 
 endmodule
