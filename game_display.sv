@@ -12,7 +12,7 @@ module game_display (
     // input logic [7:0] vga_r_data,
 
     //for testing
-    input logic [1:0] dir
+    input logic [2:0] dir
 );    
 
 /*********************************GAME_CLOCK***********************************/
@@ -94,8 +94,8 @@ module game_display (
     logic [9:0] GREEN_X0 = 10 * SIZE;
     logic [9:0] GREEN_Y0 = 10 * SIZE;
     logic inside_green;
-    logic [9:0] snake_H;
-    logic [9:0] snake_V;
+    logic [9:0] snake_H = GREEN_X0;
+    logic [9:0] snake_V = GREEN_Y0;
 
     // always_comb begin
     //     if (dir == 2'b00) begin
@@ -109,21 +109,22 @@ module game_display (
 
     // next position logic
     always_comb begin
-        snake_H = GREEN_X0;
-        snake_V = GREEN_Y0;
 
-        case (dir)
-            2'b00: snake_V = GREEN_Y0 - 20;   // up
-            2'b01: snake_V = GREEN_Y0 + 20;   // down
-            2'b10: snake_H = GREEN_X0 - 20;   // left
-            2'b11: snake_H = GREEN_X0 + 20;   // right
-        endcase
+
     end
 
     //new position updated every clock cycle
     always_ff @(posedge game_clk) begin
-            GREEN_X0 <= snake_V;
-            GREEN_Y0 <= snake_H;
+        case (dir)
+            3'b000: GREEN_Y0 <= GREEN_Y0 - 20;   // up
+            3'b001: GREEN_Y0 <= GREEN_Y0 + 20;   // down
+            3'b010: GREEN_X0 <= GREEN_X0 - 20;   // left
+            3'b011: GREEN_X0 <= GREEN_X0 + 20;   // right
+            3'b100: begin
+                GREEN_X0 <= GREEN_X0;
+                GREEN_Y0 <= GREEN_Y0;
+            end
+        endcase
     end
 
     //determine if is inside snake

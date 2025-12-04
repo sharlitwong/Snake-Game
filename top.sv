@@ -42,7 +42,7 @@ module top (
     output logic [5:0] RGB,
     output logic nes_latch,
     output logic nes_clock,
-    output logic nes_data_pin // actual FPGA pin from controller
+    input logic nes_data_pin // actual FPGA pin from controller
 );
     //clocks
     logic game_clk;
@@ -52,7 +52,7 @@ module top (
     logic valid;
 
     //NES STUFF
-    logic [1:0] nes_dir;   // direction from NES
+    logic [2:0] nes_dir;   // direction from NES
     logic       nes_reset;
     // logic       nes_clock;
     // logic       nes_latch;
@@ -71,7 +71,7 @@ module top (
         // logic [5:0]  vga_r_data;
         // logic        vga_r_we;
 
-    logic [1:0] dir;
+    logic [2:0] dir;
     logic [9:0] food_H, food_V, snake_H, snake_V;
 
     //game clock

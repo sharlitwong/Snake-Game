@@ -1,6 +1,6 @@
 module nes_read (
     input logic data,
-    output logic [1:0] nes_data,
+    output logic [2:0] nes_data,
     output logic reset,
     output logic clock, 
     output logic latch    
@@ -53,12 +53,9 @@ module nes_read (
 
     assign NESclk = counter[8];
     assign NEScount = counter[16:9];
-    //assign latch = NEScount == 8'hFF;
+    assign latch = NEScount == 8'hFF;
     assign clock = (NESclk < 8'h08) ? NESclk : 1'b0;
 
-    always_ff @(posedge clock) begin
-        latch <= 8'h1;
-    end
 
     always_ff @(negedge clock) begin
         temp_data_out [0] <= data;
@@ -78,12 +75,12 @@ module nes_read (
 
     always_comb begin
         case(data_out)
-        8'b00001000: nes_data = 2'b00; // up
-        8'b00000100: nes_data = 2'b01; // down
-        8'b00000010: nes_data = 2'b10; // left
-        8'b00000001: nes_data = 2'b11; // right
+        8'b00001000: nes_data = 3'b000; // up
+        8'b00000100: nes_data = 3'b001; // down
+        8'b00000010: nes_data = 3'b010; // left
+        8'b00000001: nes_data = 3'b011; // right
         // 8'b00010000: reset = 1'b1; // reset
-        default: nes_data = 2'b11;
+        default: nes_data = 3'b100; //idle
         endcase
     end
 
