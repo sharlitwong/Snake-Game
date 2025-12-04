@@ -9,7 +9,7 @@ module stuff (
 
     // you will need these for VGA memory connection
     output logic [18:0] vga_r_addr,
-    output logic [5:0]  vga_r_data,
+    output logic [7:0]  vga_r_data,
     output logic        vga_r_we
 );
 
@@ -109,7 +109,7 @@ module stuff (
                         end
                     end
                 end
-                
+
             end
         end
     end
@@ -117,7 +117,8 @@ module stuff (
 endmodule
 
 
-
+//instatiate redapple.sv in this file
+//add rampd.sv to this
 
 
 // superpixels[rows][cols]

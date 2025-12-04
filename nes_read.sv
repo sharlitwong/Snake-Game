@@ -12,6 +12,13 @@ module nes_read (
     logic [7:0] temp_data_out;
     logic [7:0] data_out;
 
+    // Store previous direction
+    logic [1:0] last_dir;
+
+    // Internal reset default
+    assign reset = 1'b0;
+    assign last_dir = 2'b11;
+
     SB_HFOSC #(
         .CLKHF_DIV("0b00")  
     ) osc (
@@ -49,17 +56,58 @@ module nes_read (
             data_out <= ~temp_data_out;
     end
 
+//variable 1 if signal, 0 if no signal
 
-    always_comb begin
+    // always_comb begin
+    //     case(data_out)
+    //     8'b00001000: nes_data = 2'b00; // up
+    //     8'b00000100: nes_data = 2'b01; // down
+    //     8'b00000010: nes_data = 2'b10; // left
+    //     8'b00000001: nes_data = 2'b11; // right
+    //     8'b00010000: reset = 1'b1; // reset
+    //     default: 
+    //     endcase
+    // end
+
+
+// Decode NES output → direction
+    always_ff @(posedge clock) begin
+        // default: keep last direction unless overridden
+        nes_data <= last_dir;
+
         case(data_out)
-        8'b00001000: nes_data = 2'b00; // up
-        8'b00000100: nes_data = 2'b01; // down
-        8'b00000010: nes_data = 2'b10; // left
-        8'b00000001: nes_data = 2'b11; // right
-        8'b00010000: reset = 1'b1; // reset
+            8'b00001000: begin  // up
+                nes_data <= 2'b00;
+                last_dir <= 2'b00;
+            end
+
+            8'b00000100: begin // down
+                nes_data <= 2'b01;
+                last_dir <= 2'b01;
+            end
+
+            8'b00000010: begin // left
+                nes_data <= 2'b10;
+                last_dir <= 2'b10;
+            end
+
+            8'b00000001: begin // right
+                nes_data <= 2'b11;
+                last_dir <= 2'b11;
+            end
+
+            8'b00010000: begin // reset detected
+                // pulse reset high
+                // user-defined behavior, often resetting last_dir
+                // example: set default direction
+                last_dir <= last_dir;
+            end
+
+            default: begin
+                // No button pressed → maintain previous direction
+                nes_data <= last_dir;
+            end
         endcase
     end
-
-
 
 endmodule

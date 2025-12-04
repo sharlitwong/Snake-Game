@@ -35,7 +35,7 @@
 
 module top (
     input logic clock_in,   //12MHz
-    output logic clock_out;
+    output logic clock_out,
     // input logic reset,
     output logic HSYNC,
     output logic VSYNC,
@@ -59,9 +59,9 @@ localparam int BOARD_W = 24;
     logic [9:0] game_r_addr, game_w_addr;
     logic [7:0] game_r_data, game_w_data;
     logic       game_w_enable;
-    logic [18:0] vga_r_addr,
-    logic [5:0]  vga_r_data,
-    logic        vga_r_we
+    logic [18:0] vga_r_addr;
+    logic [5:0]  vga_r_data;
+    logic        vga_r_we;
 
 logic [1:0] dir;
 logic [4:0] food_H, food_V, snake_H, snake_V;
@@ -108,15 +108,15 @@ stuff my_stuff (
 );
 
 ramdp ram_inst (
-    .clk        (clock_out),
+    .vga_clk        (clock_out),
+    .game_clk       (game_clk),
     .r_addr     (game_r_addr),
     .r_data     (game_r_data),
     .w_addr     (game_w_addr),
     .w_data     (game_w_data),
     .w_enable   (game_w_enable),
-
-    .vga_r_addr (vga_board_addr),
-    .vga_r_data (board_value_from_ram)
+    .vga_r_addr (vga_r_addr),
+    .vga_r_data (vga_r_data)
 );
 
 game_logic #(

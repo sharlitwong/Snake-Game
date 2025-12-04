@@ -9,7 +9,7 @@ module game_display (
     input logic valid,
     output logic [5:0] RGB,
     input logic [18:0] vga_r_addr,
-    input logic [WORD_SIZE - 1:0] vga_r_data
+    input logic [7:0] vga_r_data
 );    
 
 /*********************************GAME_CLOCK***********************************/
@@ -98,10 +98,6 @@ module game_display (
         (col <  GREEN_X0 + SIZE) &&
         (row >= GREEN_Y0) &&
         (row <  GREEN_Y0 + SIZE);
-    
-   game_logic my_logic (
-    
-   );
 
 /**********************************STRIPE**************************************/
     localparam STRIPE_COL = 21;
@@ -167,11 +163,12 @@ module game_display (
         // Apple (sprite)
         else if (valid && inside_apple1)
             RGB = rom_data;
+
         //moving the snake
-        if(valid) begin
-            if(board_value != 8'd0)
-            RGB = 6'b00_1111;
-        end 
+        // if(valid) begin
+        //     if (board_value != 8'd0)
+        //     RGB = 6'b00_1111;
+        // end 
     end
 
 endmodule
