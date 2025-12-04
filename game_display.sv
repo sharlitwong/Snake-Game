@@ -97,14 +97,27 @@ module game_display (
     logic [9:0] snake_H;
     logic [9:0] snake_V;
 
+    // always_comb begin
+    //     if (dir == 2'b00) begin
+    //         snake_H = GREEN_Y0 + 20;
+    //         snake_V = GREEN_X0 + 20;
+    //     end else begin
+    //         snake_H = GREEN_Y0;
+    //         snake_V = GREEN_X0;
+    //     end
+    // end
+
+    // next position logic
     always_comb begin
-        if (dir == 2'b00) begin
-            snake_H = GREEN_Y0 + 20;
-            snake_V = GREEN_X0 + 20;
-        end else begin
-            snake_H = GREEN_Y0;
-            snake_V = GREEN_X0;
-        end
+        snake_H = GREEN_X0;
+        snake_V = GREEN_Y0;
+
+        case (dir)
+            2'b00: snake_V = GREEN_Y0 - 20;   // up
+            2'b01: snake_V = GREEN_Y0 + 20;   // down
+            2'b10: snake_H = GREEN_X0 - 20;   // left
+            2'b11: snake_H = GREEN_X0 + 20;   // right
+        endcase
     end
 
     //new position updated every clock cycle

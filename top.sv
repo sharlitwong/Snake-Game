@@ -106,23 +106,23 @@ module top (
     //     .CLKHF(fast_clk) // Clock output
     // );
 
-    SB_HFOSC #(
-    .CLKHF_DIV("0b00")   
-    ) osc (
-        .CLKHFPU(1'b1),      
-        .CLKHFEN(1'b1),      
-        .CLKHF(clk),
-        .TRIM0(1'b0), 
-        .TRIM1(1'b0),
-        .TRIM2(1'b0),
-        .TRIM3(1'b0),
-        .TRIM4(1'b0),
-        .TRIM5(1'b0),
-        .TRIM6(1'b0),
-        .TRIM7(1'b0),
-        .TRIM8(1'b0),   
-        .TRIM9(1'b0)      
-    );
+    // SB_HFOSC #(
+    // .CLKHF_DIV("0b00")   
+    // ) osc (
+    //     .CLKHFPU(1'b1),      
+    //     .CLKHFEN(1'b1),      
+    //     .CLKHF(clk),
+    //     .TRIM0(1'b0), 
+    //     .TRIM1(1'b0),
+    //     .TRIM2(1'b0),
+    //     .TRIM3(1'b0),
+    //     .TRIM4(1'b0),
+    //     .TRIM5(1'b0),
+    //     .TRIM6(1'b0),
+    //     .TRIM7(1'b0),
+    //     .TRIM8(1'b0),   
+    //     .TRIM9(1'b0)      
+    // );
 
     // stuff my_stuff (
     //     .fast_clk(fast_clk),
