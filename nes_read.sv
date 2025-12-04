@@ -2,7 +2,7 @@ module nes_read (
     input logic data,
     output logic [1:0] nes_data,
     output logic reset,
-    output logic clock,
+    output logic clock, 
     output logic latch    
 );
 
@@ -28,10 +28,14 @@ module nes_read (
 
     assign NESclk = counter[8];
     assign NEScount = counter[16:9];
-    assign latch = NEScount == 8'hFF;
+    //assign latch = NEScount == 8'hFF;
     assign clock = (NESclk < 8'h08) ? NESclk : 1'b0;
 
     always_ff @(posedge clock) begin
+        latch <= 8'h1;
+    end
+
+    always_ff @(negedge clock) begin
         temp_data_out [0] <= data;
         temp_data_out [1] <= temp_data_out [0];
         temp_data_out [2] <= temp_data_out [1];

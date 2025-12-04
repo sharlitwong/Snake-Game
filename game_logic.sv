@@ -22,11 +22,9 @@ module game_logic #(
     output logic game_w_enable
 );
 
-logic C;
 logic [1:0] move_dir;
-
-//this is later going to be changed to the nes logic
-assign C = 1'b0;
+logic data;
+logic latch;
 
 //converting the 2d board coordinates into 1d ram address
 function automatic [ADDR_WIDTH-1:0] cell_addr (
@@ -48,19 +46,18 @@ logic game_clk_prev;
 wire game_tick = game_clk & ~game_clk_prev;
 
 //data read from nes
-// nes_read my_nes (
-//     .data,
-//     .nes_data(dir),
-//     .reset(reset),
-//     .clock,
-//     .latch    
-// );
+nes_read my_nes (
+    .data (data),
+    .nes_data(dir),
+    .reset(reset),
+    .clock(clk),
+    .latch(latch)    
+);
 
 //head movement logic module
 head my_head (
     .in_dir(dir),
-    .C(C),
-    // .reset(reset),
+    .reset(reset),
     .game_clk(game_clk),
     .move_dir(move_dir)
 );

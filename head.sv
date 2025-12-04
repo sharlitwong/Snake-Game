@@ -6,8 +6,7 @@
 
 module head (
     input logic [1:0] in_dir,
-    input logic C,
-    // input logic reset,
+    input logic reset,
     input logic game_clk,
     output logic [1:0] move_dir
 );

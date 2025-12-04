@@ -34,11 +34,12 @@
 // endmodule
 
 module top (
-input logic clock_in,
-// input logic reset,
-output logic HSYNC,
-output logic VSYNC,
-output logic [5:0] RGB
+    input logic clock_in,
+    output logic clock_out;
+    // input logic reset,
+    output logic HSYNC,
+    output logic VSYNC,
+    output logic [5:0] RGB
 );
 //clocks
 logic clock_out;
@@ -135,7 +136,9 @@ game_display my_display (
 .col(col),
 .valid(valid),
 .RGB(RGB),
-.board_value(board_value_from_ram)
+.board_value(board_value_from_ram),
+.vga_r_addr(vga_r_addr),
+.vga_r_data(vga_r_data)
 );
 
 endmodule
