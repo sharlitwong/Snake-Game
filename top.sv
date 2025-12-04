@@ -42,11 +42,9 @@ module top (
     output logic [5:0] RGB
 );
     //clocks
-    logic clock_out;
     logic game_clk;
     logic [21:0] count;
     logic fast_clk;
-
     logic [9:0] row, col;
     logic valid;
 
@@ -117,6 +115,13 @@ module top (
         .w_enable   (game_w_enable),
         .vga_r_addr (vga_r_addr),
         .vga_r_data (vga_r_data)
+    );
+
+
+    random my_random (
+        .game_clk(game_clk),
+        .newfood_H(food_H),
+        .newfood_V(food_V)
     );
 
     game_logic #(
