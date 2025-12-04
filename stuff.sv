@@ -13,9 +13,7 @@ module stuff (
     output logic        vga_r_we
 );
 
-    // ------------------------------------------------------------
-    // EXACT SAME VARIABLE NAMES AS YOU PROVIDED
-    // ------------------------------------------------------------
+
     // 2-bit map of objects for each 20×20 superpixel
     logic [1:0] superpixels [0:23][0:23];
 

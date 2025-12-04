@@ -94,16 +94,16 @@ module top (
             .CLKHF(fast_clk) // Clock output
         );
 
-    stuff my_stuff (
-        .fast_clk(fast_clk),
-        .food_H(food_H),
-        .food_V(food_V),
-        .snake_H(snake_H),
-        .snake_V(snake_V),
-        .vga_r_addr(vga_r_addr),
-        .vga_r_data(vga_r_data),
-        .vga_r_we(vga_r_we)
-    );
+    // stuff my_stuff (
+    //     .fast_clk(fast_clk),
+    //     .food_H(food_H),
+    //     .food_V(food_V),
+    //     .snake_H(snake_H),
+    //     .snake_V(snake_V),
+    //     .vga_r_addr(vga_r_addr),
+    //     .vga_r_data(vga_r_data),
+    //     .vga_r_we(vga_r_we)
+    // );
 
     ramdp ram_inst (
         .vga_clk        (clock_out),
