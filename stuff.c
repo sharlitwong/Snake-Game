@@ -9,7 +9,9 @@ for(r = 0 ; r < rows; ++r){
         int offsetX = c * 20;
         int offsetY = r * 20;
         switch(superpixels[r][c]){
-            
+            //if r == food_H and c == food_V then superpixel is apple 01
+            //if r == snke_H and c  == snake_V then
+            //else blank
         }
         if(superpixels[r][c] == 1){
             for(r2 = 0; r2 < 20; ++r2){
@@ -20,3 +22,5 @@ for(r = 0 ; r < rows; ++r){
         }
     }
 }
+
+//if out of bound ...end: game logic
