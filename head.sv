@@ -29,7 +29,7 @@ module head (
     
     always_comb begin
         next_state = state;
-        if (!C) begin
+        if (!reset) begin
             case (in_dir)
                 UP   : if (state != DOWN) next_state = UP;
                 DOWN : if (state != UP) next_state = DOWN;
