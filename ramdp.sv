@@ -9,7 +9,7 @@ module ramdp #(
     output logic [WORD_SIZE - 1:0] r_data,
     input logic [ADDR_WIDTH - 1:0] w_addr,
     input logic [WORD_SIZE - 1:0] w_data,
-    input logic [18:0] vga_r_addr,
+    input logic [ADDR_WIDTH - 1:0] vga_r_addr,
     output logic [WORD_SIZE - 1:0] vga_r_data,
     input logic w_enable);
 

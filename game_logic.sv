@@ -45,14 +45,6 @@ module game_logic #(
     logic game_clk_prev;
     wire game_tick = game_clk & ~game_clk_prev;
 
-    //data read from nes
-    nes_read my_nes (
-        .data (data),
-        .nes_data(dir),
-        .reset(reset),
-        .clock(clk),
-        .latch(latch)    
-    );
 
     //head movement logic module
     head my_head (

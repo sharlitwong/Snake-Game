@@ -19,14 +19,32 @@ module nes_read (
     assign reset = 1'b0;
     assign last_dir = 2'b11;
 
+    // SB_HFOSC #(
+    //     .CLKHF_DIV("0b00")  
+    // ) osc (
+    //     .CLKHFPU(1'b1),      
+    //     .CLKHFEN(1'b1),      
+    //     .CLKHF(clk)      
+    // );
+
     SB_HFOSC #(
-        .CLKHF_DIV("0b00")  
+    .CLKHF_DIV("0b00")   
     ) osc (
         .CLKHFPU(1'b1),      
         .CLKHFEN(1'b1),      
-        .CLKHF(clk)      
+        .CLKHF(clk),
+        .TRIM0(1'b0), 
+        .TRIM1(1'b0),
+        .TRIM2(1'b0),
+        .TRIM3(1'b0),
+        .TRIM4(1'b0),
+        .TRIM5(1'b0),
+        .TRIM6(1'b0),
+        .TRIM7(1'b0),
+        .TRIM8(1'b0),   
+        .TRIM9(1'b0)      
     );
-
+    
     logic [20:0] counter = 21'd0;
 
     always_ff @(posedge clk) begin

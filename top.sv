@@ -64,7 +64,6 @@ module top (
     logic [1:0] dir;
     logic [4:0] food_H, food_V, snake_H, snake_V;
 
-
     game_clk game_clk_inst (
     .vga_clk(clock_out),
     .count (count),
@@ -85,14 +84,32 @@ module top (
         .valid(valid)
     );
 
-        // HSOSC component -> On chip oscillator
-        SB_HFOSC #(
-            .CLKHF_DIV("0b00")
-        ) osc (
-            .CLKHFPU(1'b1), // Power up
-            .CLKHFEN(1'b1), // Enable
-            .CLKHF(fast_clk) // Clock output
-        );
+    // // HSOSC component -> On chip oscillator
+    // SB_HFOSC #(
+    //     .CLKHF_DIV("0b00")
+    // ) osc (
+    //     .CLKHFPU(1'b1), // Power up
+    //     .CLKHFEN(1'b1), // Enable
+    //     .CLKHF(fast_clk) // Clock output
+    // );
+
+    SB_HFOSC #(
+    .CLKHF_DIV("0b00")   
+    ) osc (
+        .CLKHFPU(1'b1),      
+        .CLKHFEN(1'b1),      
+        .CLKHF(clk),
+        .TRIM0(1'b0), 
+        .TRIM1(1'b0),
+        .TRIM2(1'b0),
+        .TRIM3(1'b0),
+        .TRIM4(1'b0),
+        .TRIM5(1'b0),
+        .TRIM6(1'b0),
+        .TRIM7(1'b0),
+        .TRIM8(1'b0),   
+        .TRIM9(1'b0)      
+    );
 
     // stuff my_stuff (
     //     .fast_clk(fast_clk),
@@ -117,6 +134,21 @@ module top (
         .vga_r_data (vga_r_data)
     );
 
+    //NES STUFF
+    logic [1:0] nes_dir;   // direction from NES
+    logic       nes_reset;
+    logic       nes_clock;
+    logic       nes_latch;
+    logic       nes_data_pin; // actual FPGA pin from controller
+
+    //data read from nes
+    nes_read my_nes (
+        .data (nes_data_pin),
+        .nes_data(nes_dir),
+        .reset(nes_reset),
+        .clock(nes_clock),
+        .latch(nes_latch)    
+    );
 
     random my_random (
         .game_clk(game_clk),
