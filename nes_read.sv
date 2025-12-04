@@ -48,10 +48,10 @@ module nes_read (
 
     always_comb begin
         case(data_out)
-        8'b00001000: nes_data = 7'b0000001; // up
-        8'b00000100: nes_data = 7'b1001111; // down
-        8'b00000010: nes_data = 7'b0010010; // left
-        8'b00000001: nes_data = 7'b0000110; // right
+        8'b00001000: nes_data = 2'b00; // up
+        8'b00000100: nes_data = 2'b01; // down
+        8'b00000010: nes_data = 2'b10; // left
+        8'b00000001: nes_data = 2'b11; // right
         8'b00010000: reset = 1'b1; // reset
         endcase
     end

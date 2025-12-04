@@ -100,7 +100,7 @@ module game_display (
     
    game_logic my_logic (
     
-   ) 
+   );
 
 /**********************************STRIPE**************************************/
     localparam STRIPE_COL = 21;
@@ -113,7 +113,7 @@ module game_display (
         (col <  STRIPE_X0 + SIZE);
 
 /********************************SCORE_DISPLAY*********************************/
-    logic [9:0] SCORE_X0 = 420;   // OK (200 % 20 = 0)
+    logic [9:0] SCORE_X0 = 480;   // OK (200 % 20 = 0)
     logic [9:0] SCORE_Y0 = 40;   // OK (140 % 20 = 0)
     logic inside_score;
     localparam SCORE_SIZE_X = 100;
