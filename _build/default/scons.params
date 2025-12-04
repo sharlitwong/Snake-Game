@@ -1,4 +1,4 @@
-timestamp: "04142010299"
+timestamp: "04144237526"
 arch: ICE40
 fpga_info {
   fpga_id: "ice40up5k-sg48"
@@ -9,23 +9,22 @@ fpga_info {
     pack: "sg48"
   }
 }
+verbosity {
+  all: false
+  synth: false
+  pnr: false
+}
 environment {
-  platform_id: "darwin-arm64"
-  is_windows: false
-  terminal_mode: FORCE_PIPE
+  platform_id: "windows-amd64"
+  is_windows: true
+  terminal_mode: FORCE_TERMINAL
   theme_name: "light"
   debug_level: 0
-  yosys_path: "/Users/arayargingazina/.apio/packages/oss-cad-suite/share/yosys"
-  trellis_path: "/Users/arayargingazina/.apio/packages/oss-cad-suite/share/trellis"
+  yosys_path: "C:\\Users\\czw11\\.apio\\packages\\oss-cad-suite\\share\\yosys"
+  trellis_path: "C:\\Users\\czw11\\.apio\\packages\\oss-cad-suite\\share\\trellis"
 }
 apio_env_params {
   env_name: "default"
   board_id: "upduino31"
   top_module: "top"
-}
-target {
-  lint {
-    verilator_all: false
-    verilator_no_style: false
-  }
 }

@@ -65,9 +65,9 @@ module top (
     logic [4:0] food_H, food_V, snake_H, snake_V;
 
     game_clk game_clk_inst (
-    .vga_clk(clock_out),
-    .count (count),
-    .game_clk (game_clk)
+        .vga_clk(clock_out),
+        .count (count),
+        .game_clk (game_clk)
     );
 
     mypll my_pll (

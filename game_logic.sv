@@ -142,6 +142,11 @@ module game_logic #(
                     game_w_data <= 8'd10; // any nonzero value
                     state <= IDLE;
                 end
+                default: begin
+                    if (game_tick) begin
+                        state <= CLEAR_OLD;
+                    end
+                end
             endcase
         end
     end
