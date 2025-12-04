@@ -1,6 +1,6 @@
 module game_display (
-//    input logic snake_H,
-//    input logic snake_V,
+//    input logic [9:0] snake_H,
+//    input logic [9:0] snake_V,
 //    input logic food_H,
 //    input logic food_V,
     input logic clk,
@@ -8,8 +8,11 @@ module game_display (
     input logic [9:0] col,
     input logic valid,
     output logic [5:0] RGB,
-    input logic [18:0] vga_r_addr,
-    input logic [7:0] vga_r_data
+    // input logic [18:0] vga_r_addr,
+    // input logic [7:0] vga_r_data,
+
+    //for testing
+    input logic [1:0] dir
 );    
 
 /*********************************GAME_CLOCK***********************************/
@@ -55,9 +58,9 @@ module game_display (
 
     //module to generate random apple positions
     random my_random (
-    .game_clk(game_clk),
-    .newfood_H(newfood_H),
-    .newfood_V(newfood_V)
+        .game_clk(game_clk),
+        .newfood_H(newfood_H),
+        .newfood_V(newfood_V)
     );
     
     //new position updated every clock cycle
@@ -91,6 +94,24 @@ module game_display (
     logic [9:0] GREEN_X0 = 10 * SIZE;
     logic [9:0] GREEN_Y0 = 10 * SIZE;
     logic inside_green;
+    logic [9:0] snake_H;
+    logic [9:0] snake_V;
+
+    always_comb begin
+        if (dir == 2'b00) begin
+            snake_H = GREEN_Y0 + 20;
+            snake_V = GREEN_X0 + 20;
+        end else begin
+            snake_H = GREEN_Y0;
+            snake_V = GREEN_X0;
+        end
+    end
+
+    //new position updated every clock cycle
+    always_ff @(posedge game_clk) begin
+            GREEN_X0 <= snake_V;
+            GREEN_Y0 <= snake_H;
+    end
 
     //determine if is inside snake
     assign inside_green =

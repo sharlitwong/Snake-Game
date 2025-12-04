@@ -1,11 +1,6 @@
-#set_io  -pullup yes button_record     21
-#set_io  -pullup yes button_channel[0] 13
-#set_io  -pullup yes button_channel[1] 19
-
-#set_io led[0]            18
-#set_io led[1]            11
-
+#VGA display
 set_io clock_in 20
+set_io clock_out 12
 set_io HSYNC 28
 set_io VSYNC 38
 set_io RGB[0] 2
@@ -15,18 +10,7 @@ set_io RGB[3] 45
 set_io RGB[4] 48
 set_io RGB[5] 3
 
-set_io clock_out 12
-
-set_io data 27
-set_io clock 26
-set_io latch 25 #counts one cycle
-
-#set_io data_out[0] 12
-#set_io data_out[1] 21
-#set_io data_out[2] 13
-#set_io data_out[3] 19
-#set_io data_out[4] 18 
-#set_io data_out[5] 11
-#set_io data_out[6] 9
-#set_io data_out[7] 6
-
+#NES
+set_io nes_latch 25
+set_io nes_clock 26
+set_io nes_data_pin 27
