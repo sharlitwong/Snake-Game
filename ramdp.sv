@@ -16,6 +16,12 @@ module ramdp #(
     logic [WORD_SIZE-1:0] mem [N_WORDS-1:0];
     // single clocked block: write + 2 reads
 
+    localparam int ROWS = 24;
+    localparam int COLS = 24;
+    // snake head position
+    logic [4:0] head_row;
+    logic [4:0] head_col;
+
     typedef enum logic [7:0] {
         EMPTY = 8'h00,
         SNAKE = 8'h01,
