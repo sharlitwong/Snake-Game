@@ -79,7 +79,7 @@ module nes_read (
         8'b00000100: nes_data = 3'b001; // down
         8'b00000010: nes_data = 3'b010; // left
         8'b00000001: nes_data = 3'b011; // right
-        // 8'b00010000: reset = 1'b1; // reset
+        8'b00010000: nes_data = 3'b111; // reset
         default: nes_data = 3'b100; //idle
         endcase
     end

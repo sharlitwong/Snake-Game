@@ -195,27 +195,6 @@ module game_display (
             digit_addr = 9'd0;
     end
 
-    // always_comb begin
-    //     if (inside_digit2) 
-    //         rom_addr_zero = y_in_digit2 * SIZE + x_in_digit2;  // 0..399
-    //     else
-    //         rom_addr_zero = 0;
-    // end
-
-    // always_comb begin
-    //     if (inside_digit1) 
-    //         rom_addr_zero = y_in_digit1 * SIZE + x_in_digit1;  // 0..399
-    //     else
-    //         rom_addr_zero = 0;
-    // end
-
-    // always_comb begin
-    //     if (inside_digit0) 
-    //         rom_addr_zero = y_in_digit0 * SIZE + x_in_digit0;  // 0..399
-    //     else
-    //         rom_addr_zero = 0;
-    // end
-
 /*********************************APPLE****************************************/
 
     //initiate the variables for food position
@@ -284,9 +263,18 @@ module game_display (
     logic [9:0] snake_H = GREEN_X0;
     logic [9:0] snake_V = GREEN_Y0;
 
+    logic [2:0] move_dir;
+    //assign move_dir = 3'b011;
+
+    head my_head(
+        .in_dir(dir), //input from NES
+        .game_clk(game_clk),
+        .move_dir(move_dir) //state of snake head movement
+    );
+
     //new position updated every clock cycle
     always_ff @(posedge game_clk) begin
-        case (dir)
+        case (dir) //should be move_dir
             3'b000: GREEN_Y0 <= GREEN_Y0 + 20;   // up
             3'b001: GREEN_Y0 <= GREEN_Y0 - 20;   // down
             3'b010: GREEN_X0 <= GREEN_X0 + 20;   // left
