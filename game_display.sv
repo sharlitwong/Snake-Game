@@ -48,7 +48,7 @@ module game_display (
 
     logic [9:0] current_score = 0; //initialize score (0 - 576)
 
-    localparam num_SIZE = 20; //length = width of one score pixel (superpixel)
+    localparam num_SIZE = 20; //(length = width) of one score pixel (superpixel)
     logic inside_digit2; //"booleans" for whether the vga is currently rendering
     logic inside_digit1; //within where these numbers should be
     logic inside_digit0;
@@ -274,12 +274,12 @@ module game_display (
 
     //new position updated every clock cycle
     always_ff @(posedge game_clk) begin
-        case (dir) //should be move_dir
-            3'b000: GREEN_Y0 <= GREEN_Y0 + 20;   // up
-            3'b001: GREEN_Y0 <= GREEN_Y0 - 20;   // down
-            3'b010: GREEN_X0 <= GREEN_X0 + 20;   // left
-            3'b011: GREEN_X0 <= GREEN_X0 - 20;   // right
-            3'b100: begin
+        case (move_dir) //should be move_dir
+            3'b000: GREEN_Y0 <= GREEN_Y0 - 20;   // up
+            3'b001: GREEN_Y0 <= GREEN_Y0 + 20;   // down
+            3'b010: GREEN_X0 <= GREEN_X0 - 20;   // left
+            3'b011: GREEN_X0 <= GREEN_X0 + 20;   // right
+            3'b100: begin //idle
                 GREEN_X0 <= GREEN_X0;
                 GREEN_Y0 <= GREEN_Y0;
             end
@@ -349,14 +349,16 @@ module game_display (
 
     assign outside_frame =
     (GREEN_X0 >= 24*20) ||   // X >= 480
-    (GREEN_Y0 >= 24*20);     // Y >= 480
+    (GREEN_Y0 >= 24*20) ||
+    (GREEN_X0 <= 0) ||
+    (GREEN_Y0 <= 0);     // Y >= 480
 
     always_comb begin
         // Default background color
         RGB = 6'd0;
 
         // HIGHEST PRIORITY: outside frame
-        if (outside_frame)
+        if (valid && outside_frame)
             RGB = 6'b11_0000;  // red
 
         // Next priority: score display
