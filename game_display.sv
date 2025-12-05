@@ -65,8 +65,13 @@ module game_display (
     
     //new position updated every clock cycle
     always_ff @(posedge game_clk) begin
-            APPLE1_X0 <= (newfood_H) * 20;
-            APPLE1_Y0 <= newfood_V * 20;
+            if (GREEN_X0 == APPLE1_X0 && GREEN_Y0 == APPLE1_Y0) begin
+                APPLE1_X0 <= (newfood_H) * 20;
+                APPLE1_Y0 <= newfood_V * 20;
+            end else begin
+                APPLE1_X0 <= APPLE1_X0;
+                APPLE1_Y0 <= APPLE1_Y0;
+            end
     end
 
     // Check bounds
@@ -97,29 +102,13 @@ module game_display (
     logic [9:0] snake_H = GREEN_X0;
     logic [9:0] snake_V = GREEN_Y0;
 
-    // always_comb begin
-    //     if (dir == 2'b00) begin
-    //         snake_H = GREEN_Y0 + 20;
-    //         snake_V = GREEN_X0 + 20;
-    //     end else begin
-    //         snake_H = GREEN_Y0;
-    //         snake_V = GREEN_X0;
-    //     end
-    // end
-
-    // next position logic
-    always_comb begin
-
-
-    end
-
     //new position updated every clock cycle
     always_ff @(posedge game_clk) begin
         case (dir)
-            3'b000: GREEN_Y0 <= GREEN_Y0 - 20;   // up
-            3'b001: GREEN_Y0 <= GREEN_Y0 + 20;   // down
-            3'b010: GREEN_X0 <= GREEN_X0 - 20;   // left
-            3'b011: GREEN_X0 <= GREEN_X0 + 20;   // right
+            3'b000: GREEN_Y0 <= GREEN_Y0 + 20;   // up
+            3'b001: GREEN_Y0 <= GREEN_Y0 - 20;   // down
+            3'b010: GREEN_X0 <= GREEN_X0 + 20;   // left
+            3'b011: GREEN_X0 <= GREEN_X0 - 20;   // right
             3'b100: begin
                 GREEN_X0 <= GREEN_X0;
                 GREEN_Y0 <= GREEN_Y0;
@@ -135,7 +124,7 @@ module game_display (
         (row <  GREEN_Y0 + SIZE);
 
 /**********************************STRIPE**************************************/
-    localparam STRIPE_COL = 21;
+    localparam STRIPE_COL = 24;
     localparam STRIPE_X0  = STRIPE_COL * SIZE;   // SIZE = 20
 
     logic inside_stripe;
@@ -145,7 +134,7 @@ module game_display (
         (col <  STRIPE_X0 + SIZE);
 
 /********************************SCORE_DISPLAY*********************************/
-    logic [9:0] SCORE_X0 = 480;   // OK (200 % 20 = 0)
+    logic [9:0] SCORE_X0 = 520;   // OK (200 % 20 = 0)
     logic [9:0] SCORE_Y0 = 40;   // OK (140 % 20 = 0)
     logic inside_score;
     localparam SCORE_SIZE_X = 100;
@@ -182,28 +171,36 @@ module game_display (
     end
 
 /**********************************DISPLAY*************************************/  
+    logic outside_frame;
+
+    assign outside_frame = (GREEN_X0 >= 24*20) ||
+        (GREEN_X0 <=  20) ||
+        (GREEN_Y0 >= 24*20) ||
+        (GREEN_Y0 <=  20);
+
     always_comb begin
-        RGB = 6'd0;  // background
-        if (valid && inside_score)
+        // Default background color
+        RGB = 6'd0;
+
+        // HIGHEST PRIORITY: outside frame
+        if (outside_frame)
+            RGB = 6'b11_0000;  // red
+
+        // Next priority: score display
+        else if (valid && inside_score)
             RGB = rom_data_score;
 
-        // Stripe (solid white)
-        if (valid && inside_stripe)
-            RGB = 6'b11_1111;   // white
+        // Stripe
+        else if (valid && inside_stripe)
+            RGB = 6'b11_1111;  // white
 
-        // Green square (solid)
+        // Green square (snake)
         else if (valid && inside_green)
-            RGB = 6'b00_1100;  // green (choose any)   \
+            RGB = 6'b00_1100;  // green
 
-        // Apple (sprite)
+        // Apple sprite
         else if (valid && inside_apple1)
             RGB = rom_data;
-
-        //moving the snake
-        // if(valid) begin
-        //     if (board_value != 8'd0)
-        //     RGB = 6'b00_1111;
-        // end 
     end
 
 endmodule
