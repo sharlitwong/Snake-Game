@@ -42,7 +42,8 @@ module top (
     output logic [5:0] RGB,
     output logic nes_latch,
     output logic nes_clock,
-    input logic nes_data_pin // actual FPGA pin from controller
+    input logic nes_data_pin, // actual FPGA pin from controller
+    output logic led
 );
     //clocks
     logic game_clk;
@@ -202,7 +203,8 @@ module top (
         .RGB(RGB),
         // .vga_r_addr(vga_r_addr),
         // .vga_r_data(vga_r_data),
-        .dir(nes_dir)
+        .dir(nes_dir),
+        .outside_frame(led)
     );
 
 endmodule

@@ -12,7 +12,8 @@ module game_display (
     // input logic [7:0] vga_r_data,
 
     //for testing
-    input logic [2:0] dir
+    input logic [2:0] dir,
+    output logic outside_frame
 );    
 
 /*********************************GAME_CLOCK***********************************/
@@ -171,12 +172,15 @@ module game_display (
     end
 
 /**********************************DISPLAY*************************************/  
-    logic outside_frame;
 
-    assign outside_frame = (GREEN_X0 >= 24*20) ||
-        (GREEN_X0 <=  20) ||
-        (GREEN_Y0 >= 24*20) ||
-        (GREEN_Y0 <=  20);
+    // assign outside_frame = (GREEN_X0 >= 24*20) ||
+    //     (GREEN_X0 <=  20) ||
+    //     (GREEN_Y0 >= 24*20) ||
+    //     (GREEN_Y0 <=  20);
+
+    assign outside_frame =
+    (GREEN_X0 >= 24*20) ||   // X >= 480
+    (GREEN_Y0 >= 24*20);     // Y >= 480
 
     always_comb begin
         // Default background color
