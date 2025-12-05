@@ -279,6 +279,10 @@ module game_display (
             3'b001: GREEN_Y0 <= GREEN_Y0 + 20;   // down
             3'b010: GREEN_X0 <= GREEN_X0 - 20;   // left
             3'b011: GREEN_X0 <= GREEN_X0 + 20;   // right
+            3'b111: begin
+                GREEN_X0 <= 10 * SIZE;
+                GREEN_Y0 <= 10 * SIZE;
+            end
             3'b100: begin //idle
                 GREEN_X0 <= GREEN_X0;
                 GREEN_Y0 <= GREEN_Y0;

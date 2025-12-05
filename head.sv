@@ -23,7 +23,7 @@ module head (
 
     always_ff @(posedge game_clk) begin
         if (in_dir == RESET)
-            state <= RIGHT;
+            state <= RESET;
         else
             state <= next_state;
     end
@@ -36,8 +36,8 @@ module head (
                 DOWN : if (state != UP) next_state = DOWN;
                 LEFT : if (state != RIGHT) next_state = LEFT;
                 RIGHT: if (state != LEFT) next_state = RIGHT;
-                RESET: next_state = RIGHT;
-                default: next_state = IDLE;
+                RESET: next_state = RESET;
+                default: next_state = state;
             endcase
         end
     end
