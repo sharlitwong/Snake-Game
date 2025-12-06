@@ -1,37 +1,30 @@
 module game_display (
-//    input logic [9:0] snake_H,
-//    input logic [9:0] snake_V,
-//    input logic food_H,
-//    input logic food_V,
+   input logic [9:0] GREEN_X0,
+   input logic [9:0] GREEN_Y0,
+   input logic [9:0] APPLE1_X0,
+   input logic [9:0] APPLE1_Y0,
     input logic clk,
     input logic [9:0] row,
     input logic [9:0] col,
     input logic valid,
+    input logic [9:0] current_score, //initialize score (0 - 576)
+    input logic [2:0] state,
     output logic [5:0] RGB,
-    // input logic [18:0] vga_r_addr,
-    // input logic [7:0] vga_r_data,
 
-    //for testing
-    input logic [2:0] dir,
-    output logic outside_frame
+    //test
+    // input logic [2:0] nes_data
+    // input logic button_up,
+    // input logic button_down,
+    // input logic button_left,
+    // input logic button_right
+    //test
 );    
-
-/*********************************GAME_CLOCK***********************************/
-    //initiate game clock
-    logic [21:0] counter;
-    logic game_clk;
-
-    game_clk my_game_clk (
-        .vga_clk(clk),
-        .count(counter),
-        .game_clk(game_clk)
-    );
 
 /*********************************ROM******************************************/
 
     // Instantiate ROM
-    logic [5:0] rom_data;
-    logic [8:0] rom_addr;
+    logic [5:0] rom_data; //apple
+    logic [8:0] rom_addr; //apple
     logic [5:0] rom_data_score;
     logic [10:0] rom_addr_score;
 
@@ -45,8 +38,6 @@ module game_display (
     logic [9:0] digit_0X = 580;
     logic [9:0] digit_0Y = 80;
     //least significant digit of score
-
-    logic [9:0] current_score = 0; //initialize score (0 - 576)
 
     localparam num_SIZE = 20; //(length = width) of one score pixel (superpixel)
     logic inside_digit2; //"booleans" for whether the vga is currently rendering
@@ -198,10 +189,10 @@ module game_display (
 /*********************************APPLE****************************************/
 
     //initiate the variables for food position
-    logic [9:0] newfood_H;
-    logic [9:0] newfood_V;
-    logic [9:0] APPLE1_X0 = 40;   // OK (200 % 20 = 0)
-    logic [9:0] APPLE1_Y0 = 40;   // OK (140 % 20 = 0)
+    // logic [9:0] newfood_H;
+    // logic [9:0] newfood_V;
+    // logic [9:0] APPLE1_X0 = 40;   // OK (200 % 20 = 0)
+    // logic [9:0] APPLE1_Y0 = 40;   // OK (140 % 20 = 0)
     localparam SIZE = 20;        // 20×20 superpixel of the game frame    
     
     //apple internal coordinates
@@ -216,24 +207,24 @@ module game_display (
         .data(rom_data)
     );
 
-    //module to generate random apple positions
-    random my_random (
-        .game_clk(game_clk),
-        .newfood_H(newfood_H),
-        .newfood_V(newfood_V)
-    );
+    // //module to generate random apple positions
+    // random my_random (
+    //     .game_clk(game_clk),
+    //     .newfood_H(newfood_H),
+    //     .newfood_V(newfood_V)
+    // );
     
     //new position updated every clock cycle
-    always_ff @(posedge game_clk) begin
-        if (GREEN_X0 == APPLE1_X0 && GREEN_Y0 == APPLE1_Y0) begin
-            APPLE1_X0 <= (newfood_H) * 20;
-            APPLE1_Y0 <= newfood_V * 20;
-            current_score <= current_score + 1;
-        end else begin
-            APPLE1_X0 <= APPLE1_X0;
-            APPLE1_Y0 <= APPLE1_Y0;
-        end
-    end
+    // always_ff @(posedge game_clk) begin
+    //     if (GREEN_X0 == APPLE1_X0 && GREEN_Y0 == APPLE1_Y0) begin
+    //         APPLE1_X0 <= (newfood_H) * 20;
+    //         APPLE1_Y0 <= newfood_V * 20;
+    //         // current_score <= current_score + 1;
+    //     end else begin
+    //         APPLE1_X0 <= APPLE1_X0;
+    //         APPLE1_Y0 <= APPLE1_Y0;
+    //     end
+    // end
 
     // Check bounds
     assign inside_apple1 = (col >= APPLE1_X0 &&
@@ -257,38 +248,38 @@ module game_display (
 
 /*********************************SNAKE****************************************/
     //Variables for snake positions
-    logic [9:0] GREEN_X0 = 10 * SIZE;
-    logic [9:0] GREEN_Y0 = 10 * SIZE;
+    // logic [9:0] GREEN_X0 = 10 * SIZE;
+    // logic [9:0] GREEN_Y0 = 10 * SIZE;
     logic inside_green;
-    logic [9:0] snake_H = GREEN_X0;
-    logic [9:0] snake_V = GREEN_Y0;
+    // logic [9:0] snake_H = GREEN_X0;
+    // logic [9:0] snake_V = GREEN_Y0;
 
-    logic [2:0] move_dir;
+    // logic [2:0] move_dir;
     //assign move_dir = 3'b011;
 
-    head my_head(
-        .in_dir(dir), //input from NES
-        .game_clk(game_clk),
-        .move_dir(move_dir) //state of snake head movement
-    );
+    // head my_head(
+    //     .in_dir(dir), //input from NES
+    //     .game_clk(game_clk),
+    //     .move_dir(move_dir) //state of snake head movement
+    // );
 
-    //new position updated every clock cycle
-    always_ff @(posedge game_clk) begin
-        case (move_dir) //should be move_dir
-            3'b000: GREEN_Y0 <= GREEN_Y0 - 20;   // up
-            3'b001: GREEN_Y0 <= GREEN_Y0 + 20;   // down
-            3'b010: GREEN_X0 <= GREEN_X0 - 20;   // left
-            3'b011: GREEN_X0 <= GREEN_X0 + 20;   // right
-            3'b111: begin
-                GREEN_X0 <= 10 * SIZE;
-                GREEN_Y0 <= 10 * SIZE;
-            end
-            3'b100: begin //idle
-                GREEN_X0 <= GREEN_X0;
-                GREEN_Y0 <= GREEN_Y0;
-            end
-        endcase
-    end
+    // //new position updated every clock cycle
+    // always_ff @(posedge game_clk) begin
+    //     case (move_dir) //should be move_dir
+    //         3'b000: GREEN_Y0 <= GREEN_Y0 - 20;   // up
+    //         3'b001: GREEN_Y0 <= GREEN_Y0 + 20;   // down
+    //         3'b010: GREEN_X0 <= GREEN_X0 - 20;   // left
+    //         3'b011: GREEN_X0 <= GREEN_X0 + 20;   // right
+    //         3'b111: begin
+    //             GREEN_X0 <= 10 * SIZE;
+    //             GREEN_Y0 <= 10 * SIZE;
+    //         end
+    //         3'b100: begin //idle
+    //             GREEN_X0 <= GREEN_X0;
+    //             GREEN_Y0 <= GREEN_Y0;
+    //         end
+    //     endcase
+    // end
 
     //determine if is inside snake
     assign inside_green =
@@ -346,24 +337,27 @@ module game_display (
 
 /**********************************DISPLAY*************************************/  
 
-    // assign outside_frame = (GREEN_X0 >= 24*20) ||
-    //     (GREEN_X0 <=  20) ||
-    //     (GREEN_Y0 >= 24*20) ||
-    //     (GREEN_Y0 <=  20);
-
-    assign outside_frame =
-    (GREEN_X0 >= 24*20) ||   // X >= 480
-    (GREEN_Y0 >= 24*20) ||
-    (GREEN_X0 <= 0) ||
-    (GREEN_Y0 <= 0);     // Y >= 480
+    // assign outside_frame =
+    // (GREEN_X0 >= 24*20) ||   // X >= 480
+    // (GREEN_Y0 >= 24*20) ||
+    // (GREEN_X0 <= 0) ||
+    // (GREEN_Y0 <= 0);     // Y >= 480
 
     always_comb begin
         // Default background color
         RGB = 6'd0;
 
-        // HIGHEST PRIORITY: outside frame
-        if (valid && outside_frame)
+        // HIGHEST PRIORITY: game over
+        if (valid && state == 3'b110)
             RGB = 6'b11_0000;  // red
+        
+        //TESTING START
+        // else if(valid && button_down) //up
+        //     RGB = 6'b00_0011; //blue
+
+        // else if(valid && button_up) //DOWN
+        //     RGB = 6'b00_1100; //green
+        //TESTING END
 
         // Next priority: score display
         else if (valid && inside_score)

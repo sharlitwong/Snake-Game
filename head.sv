@@ -30,7 +30,7 @@ module head (
     
     always_comb begin
         next_state = state;
-        if (in_dir != RESET) begin
+        // if (in_dir != RESET) begin
             case (in_dir)
                 UP   : if (state != DOWN) next_state = UP;
                 DOWN : if (state != UP) next_state = DOWN;
@@ -39,7 +39,7 @@ module head (
                 RESET: next_state = RESET;
                 default: next_state = state;
             endcase
-        end
+        // end
     end
 
     assign move_dir = next_state;

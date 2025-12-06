@@ -14,6 +14,3 @@ set_io RGB[5] 3
 set_io nes_latch 25
 set_io nes_clock 26
 set_io nes_data_pin 27
-
-#Testing
-set_io led 44
