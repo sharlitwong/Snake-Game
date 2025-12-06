@@ -60,9 +60,6 @@ module top (
         .APPLE1_Y0(APPLE1_Y0),
         .current_score(current_score),
         .state(state),
-
-        //test
-        // .nes_data(nes_dir),
         
         //output: RGB
         .RGB(RGB),      
@@ -70,17 +67,6 @@ module top (
 
 
 /**************************************NES*************************************/
-    // logic [2:0] nes_dir;
-   
-    //data read from nes
-    // nes_read my_nes (
-    //     .data (nes_data_pin),
-    //     .nes_data(nes_dir),
-    //     .clock(nes_clock),
-    //     .clk(clock_in),
-    //     .latch(nes_latch)    
-    // );
-
         logic [7:0] buttons;
         logic button_up;
         logic button_down;
@@ -159,14 +145,17 @@ module top (
     (GREEN_Y0 <= 0);     // Y >= 480
 
     //State encodings
-    typedef enum logic [2:0] {
-        UP          = 3'b000,
-        DOWN        = 3'b001,
-        LEFT        = 3'b010,
-        RIGHT       = 3'b011,
-        WAITING     = 3'b111,
-        GAME_OVER   = 3'b110,
-        EAT_APPLE   = 3'b101
+    typedef enum logic [3:0] {
+        UP              = 4'b0000,
+        DOWN            = 4'b0001,
+        LEFT            = 4'b0010,
+        RIGHT           = 4'b0011,
+        WAITING         = 4'b0111,
+        GAME_OVER       = 4'b0110,
+        EAT_APPLE_UP    = 4'b1000,
+        EAT_APPLE_DOWN  = 4'b1001,
+        EAT_APPLE_LEFT  = 4'b1010,
+        EAT_APPLE_RIGHT = 4'b1011
     } state_t;
 
     //Initialize curr state and next state
@@ -182,22 +171,23 @@ module top (
             current_score <= next_score;
         // end
     end
-
-    // logic [2:0] save_prev;
     
     //next_state logic
     always_comb begin
         next_state = state; //for default
-        // save_prev = ;
+
         //logic to set next state to be something
-        // if (nes_dir == 3'b111)
         if (button_start)
             next_state = WAITING;
 
         // Eat
         else if (apple_signal) begin
-            next_state = EAT_APPLE;
-            // save_prev = state;
+            case (state) 
+                UP:     next_state = EAT_APPLE_UP;
+                DOWN:   next_state = EAT_APPLE_DOWN;
+                LEFT:   next_state = EAT_APPLE_LEFT;
+                RIGHT:  next_state = EAT_APPLE_RIGHT;
+            endcase
         end
 
         //Die
@@ -213,36 +203,59 @@ module top (
             if (state != RIGHT) next_state = LEFT;
         end else if (button_right) begin
             if (state != LEFT) next_state = RIGHT;
-        // end else if (state == EAT_APPLE) begin
-            // next_state = save_prev;
-        end else begin
+        end else if (state == EAT_APPLE_UP)
+            next_state = UP;
+        else if (state == EAT_APPLE_DOWN)
+            next_state = DOWN;        
+        else if (state == EAT_APPLE_LEFT)
+            next_state = LEFT;
+        else if (state == EAT_APPLE_RIGHT)
+            next_state = RIGHT;
+        else
             next_state = state;
-            // save_prev = 
-        end
         
-            // case (nes_dir)
-            //     UP   :      if (state != DOWN) next_state = UP;
-            //     DOWN :      if (state != UP) next_state = DOWN;
-            //     LEFT :      if (state != RIGHT) next_state = LEFT;
-            //     RIGHT:      if (state != LEFT) next_state = RIGHT;
-            //     default:    next_state = state; //null input
-            // endcase
     end
 
     //curr_state logic
     always_comb begin 
-        // if (apple_signal) begin
-        //         //score updates
-        //         next_score = current_score + 1;
-
-        //         //apple position update
-        //         next_APPLE1_X0 = new_APPLE1_X0 * 20;
-        //         next_APPLE1_Y0 = new_APPLE1_Y0 * 20;
-        //         next_GREEN_X0  = GREEN_X0;
-        //         next_GREEN_Y0  = GREEN_Y0;
-        // end
         case(state)
-            EAT_APPLE: begin
+            EAT_APPLE_UP: begin
+                //score updates
+                next_score = current_score + 1;
+
+                //apple position update
+                next_APPLE1_X0 = new_APPLE1_X0 * 20;
+                next_APPLE1_Y0 = new_APPLE1_Y0 * 20;
+
+                next_GREEN_X0  = GREEN_X0;
+                next_GREEN_Y0  = GREEN_Y0;
+            end
+
+            EAT_APPLE_DOWN: begin
+                //score updates
+                next_score = current_score + 1;
+
+                //apple position update
+                next_APPLE1_X0 = new_APPLE1_X0 * 20;
+                next_APPLE1_Y0 = new_APPLE1_Y0 * 20;
+
+                next_GREEN_X0  = GREEN_X0;
+                next_GREEN_Y0  = GREEN_Y0;
+            end
+
+            EAT_APPLE_LEFT: begin
+                //score updates
+                next_score = current_score + 1;
+
+                //apple position update
+                next_APPLE1_X0 = new_APPLE1_X0 * 20;
+                next_APPLE1_Y0 = new_APPLE1_Y0 * 20;
+
+                next_GREEN_X0  = GREEN_X0;
+                next_GREEN_Y0  = GREEN_Y0;
+            end
+
+            EAT_APPLE_RIGHT: begin
                 //score updates
                 next_score = current_score + 1;
 
@@ -302,8 +315,8 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-            end
-            
+            end                         
+ 
             default: //defaults
                 begin
                     next_GREEN_X0  = GREEN_X0;
