@@ -185,9 +185,49 @@ module game_display (
         else
             digit_addr = 9'd0;
     end
+/*********************************GAMEOVER*************************************/
+
+    logic [9:0] gameoverX = (640  - gameover_width  * GO_SCALE) / 2;
+    logic [9:0] gameoverY = (480 - gameover_height * GO_SCALE) / 2;
+    
+    localparam gameover_width = 83;
+    localparam gameover_height = 47;
+
+    logic inside_gameover;
+
+    localparam integer GO_SCALE = 2; // 2× bigger
+
+
+    assign inside_gameover = 
+        (col >= gameoverX) &&
+        (col <  gameoverX + gameover_width * GO_SCALE) &&
+        (row >= gameoverY) &&
+        (row <  gameoverY + gameover_height * GO_SCALE);
+
+    logic [6:0] x_in_gameover; // 0–82
+    logic [5:0] y_in_gameover; // 0–46
+
+    always_comb begin
+        x_in_gameover = (col - gameoverX) / GO_SCALE;
+        y_in_gameover = (row - gameoverY) / GO_SCALE;
+    end
+
+    logic [5:0] rom_data_gameover;
+    logic [11:0] gameover_addr;
+    gameover my_gameover (
+        .clk(clk),
+        .addr(gameover_addr),
+        .data(rom_data_gameover)
+    );
+
+    always_comb begin
+        if (inside_gameover)
+            gameover_addr = y_in_gameover * gameover_width + x_in_gameover;
+        else
+            gameover_addr = 12'd0;
+    end
 
 /*********************************APPLE****************************************/
-
     //initiate the variables for food position
     // logic [9:0] newfood_H;
     // logic [9:0] newfood_V;
@@ -349,7 +389,7 @@ module game_display (
 
         // HIGHEST PRIORITY: game over
         if (valid && state == 3'b110)
-            RGB = 6'b11_0000;  // red
+            RGB = rom_data_gameover;  // red
         
         //TESTING START
         // else if(valid && button_down) //up

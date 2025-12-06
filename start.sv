@@ -1,6 +1,6 @@
-module start (
+module start ( //NEEDS TO BE FIXED!!! bits for addr are wrong
     input logic clk,
-    input logic [8:0] addr,
+    input logic [10:0] addr,
     output logic [5:0] data
 );
     always_ff @(posedge clk) begin
