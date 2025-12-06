@@ -54,11 +54,12 @@ module top (
         .row(row),
         .col(col),
         .valid(valid),
-        .GREEN_X0(GREEN_X0),
-        .GREEN_Y0(GREEN_Y0),
+        // .GREEN_X0(GREEN_X0),
+        // .GREEN_Y0(GREEN_Y0),
         .APPLE1_X0(APPLE1_X0),
         .APPLE1_Y0(APPLE1_Y0),
         .current_score(current_score),
+        .all_coords(all_coords),
         .state(state),
         
         //output: RGB
@@ -103,6 +104,61 @@ module top (
         .newfood_V(new_APPLE1_Y0)
     );
 
+/*******************************SNAKE RAM**************************************/
+
+    // logic button_record;
+    // logic [9:0] coordinates;
+    // logic [2:0] addr;
+    // logic enable_w;
+
+    // assign enable_w = 
+    // (state == UP) ||
+    // (state == DOWN) ||
+    // (state == RIGHT) ||
+    // (state == LEFT);
+    
+    //modify coordinates based on coordinates of the block before it
+    //What we have: head coordinates: GREEN_X0, GREEN_Y0
+
+    //original coordinate
+
+    //how to know coordinates of a block:
+    //SIZE = 20
+    //head: coordinates of head: GREEN_X0 = 10'd200, GREEN_Y0 = 10'200
+    //segment1: GREEN_X1 = GREEN_X0 - SIZE * 1, GREEN_Y1 = GREEN_Y0
+    //segment2: GREEN_X2 = GREEN_X0 - SIZE * 2, GREEN_Y2 = GREEN_Y0
+    //segment3: GREEN_X3 = GREEN_X0 - SIZE * 3, GREEN_Y3 = GREEN_Y0
+    //segment4: GREEN_X4 = GREEN_X0 - SIZE * 4, GREEN_Y3 = GREEN_Y0
+    //segment5: GREEN_X5 = GREEN_X0 - SIZE * 5, GREEN_Y3 = GREEN_Y0
+
+    //WHILE MOVING (shift reg: shift_reg <= {shift_reg[6:0], data};)
+    logic [99:0] all_coords; //like our ram (10 bits per coord, 5 coords)
+    
+    //WHILE MOVING (shift reg: all_coords <= {all_coords[39:0], [GREEN_X0, GREEN_Y0]};)
+    // GREEN_X0 <= new_GREEN_X0
+    // GREEN_X1 <= GREEN_X0
+    // GREEN_X2 <= GREEN_X1
+    // GREEN_X3 <= GREEN_X2
+    //same for y
+
+    // logic [49:0] all_coords;
+    // always_ff @(game_clk) begin
+    //     all_coords <= {all_coords[39:0], [GREEN_X0, GREEN_Y0]};
+    // end
+
+    // snake #(
+    //     .WORD_SIZE (10),
+    //     .N_WORDS (5),
+    //     .ADDR_WIDTH (3)
+    // )ramdp(
+    //     .w_data (coordinates), //encoded data (coordinates)
+    //     .r_data (coordinates), //encoded data (coordinates)
+    //     .r_addr (addr), //which segment of the snake we're at 0-4
+    //     .w_addr (addr), //which segment of the snake we're at 0-4
+    //     .w_enable (enable_w), //only true when up, down, left, right //pending: eat apple
+    //     .clk (game_clk) //vga_clk
+    // );
+
 /*******************************STATE MACHINE**********************************/
 //inputs for state machine
     //nes_dir (initialized in NES)
@@ -136,6 +192,7 @@ module top (
     logic [9:0] next_GREEN_X0, next_GREEN_Y0;
     logic [9:0] next_APPLE1_X0, next_APPLE1_Y0; //ACTUAL on 640x480 coordinates of apple
     logic [9:0] next_score;
+    logic [99:0] next_all_coords;
 
 
     assign outside_frame =
@@ -169,6 +226,8 @@ module top (
             APPLE1_X0     <= next_APPLE1_X0;
             APPLE1_Y0     <= next_APPLE1_Y0;
             current_score <= next_score;
+            // all_coords <= {all_coords[39:0], next_GREEN_X0, next_GREEN_Y0};
+            all_coords <= next_all_coords;
         // end
     end
     
@@ -229,6 +288,8 @@ module top (
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
+
+                next_all_coords = all_coords;
             end
 
             EAT_APPLE_DOWN: begin
@@ -241,6 +302,8 @@ module top (
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
+
+                next_all_coords = all_coords;
             end
 
             EAT_APPLE_LEFT: begin
@@ -253,6 +316,8 @@ module top (
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
+
+                next_all_coords = all_coords;
             end
 
             EAT_APPLE_RIGHT: begin
@@ -265,6 +330,8 @@ module top (
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
+
+                next_all_coords = all_coords;
             end
             
             GAME_OVER: begin
@@ -273,12 +340,22 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
+                
+                next_all_coords = all_coords;
             end
 
             WAITING: begin
                 //set snake position to original
                 next_GREEN_X0 = 10'd200;
                 next_GREEN_Y0 = 10'd200;
+                
+                next_all_coords = 
+                    {10'd120, 10'd200, 
+                    10'd140, 10'd200, 
+                    10'd160, 10'd200, 
+                    10'd180, 10'd200,
+                    10'd200, 10'd200}; //least signif (head)
+
 
                 //SET APPLE ORIGIN
                 next_APPLE1_X0 = 10'd300;
@@ -294,6 +371,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
+                next_all_coords = {all_coords[79:0], next_GREEN_X0, next_GREEN_Y0};
             end
             DOWN: begin
                 next_GREEN_Y0 = GREEN_Y0 + 20;
@@ -301,6 +379,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
+                next_all_coords = {all_coords[79:0], next_GREEN_X0, next_GREEN_Y0};
             end
             LEFT: begin
                 next_GREEN_X0 = GREEN_X0 - 20; 
@@ -308,6 +387,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
+                next_all_coords = {all_coords[79:0], next_GREEN_X0, next_GREEN_Y0};
             end
             RIGHT: begin
                 next_GREEN_X0 = GREEN_X0 + 20;
@@ -315,10 +395,12 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
+                next_all_coords = {all_coords[79:0], next_GREEN_X0, next_GREEN_Y0};
             end                         
  
             default: //defaults
                 begin
+                    next_all_coords = all_coords;
                     next_GREEN_X0  = GREEN_X0;
                     next_GREEN_Y0  = GREEN_Y0;
                     next_APPLE1_X0 = APPLE1_X0;

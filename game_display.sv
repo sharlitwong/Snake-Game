@@ -1,6 +1,6 @@
 module game_display (
-   input logic [9:0] GREEN_X0,
-   input logic [9:0] GREEN_Y0,
+//    input logic [9:0] GREEN_X0,
+//    input logic [9:0] GREEN_Y0,
    input logic [9:0] APPLE1_X0,
    input logic [9:0] APPLE1_Y0,
     input logic clk,
@@ -9,7 +9,8 @@ module game_display (
     input logic valid,
     input logic [9:0] current_score, //initialize score (0 - 576)
     input logic [3:0] state,
-    output logic [5:0] RGB,
+    input logic [99:0] all_coords,
+    output logic [5:0] RGB
 );    
 
 /*********************************ROM******************************************/
@@ -187,7 +188,7 @@ module game_display (
 
     logic inside_gameover;
 
-    localparam integer GO_SCALE = 2; // 2× bigger
+    localparam integer GO_SCALE = 4; // 2× bigger
 
 
     assign inside_gameover = 
@@ -256,16 +257,46 @@ module game_display (
     end
 
 /*********************************SNAKE****************************************/
+    // logic snake_array [0:67];
+    
     //Variables for snake positions
-    logic inside_green;
+    logic inside_green0; //head
+    logic inside_green1;
+    logic inside_green2;
+    logic inside_green3;
+    logic inside_green4;
 
     //determine if is inside snake
-    assign inside_green =
-        (col >= GREEN_X0) &&
-        (col <  GREEN_X0 + SIZE) &&
-        (row >= GREEN_Y0) &&
-        (row <  GREEN_Y0 + SIZE);
+    assign inside_green0 =
+        (col >= all_coords[19:10]) &&
+        (col <  all_coords[19:10] + SIZE) &&
+        (row >= all_coords[9:0]) &&
+        (row <  all_coords[9:0]+ SIZE); //all_coords x
 
+    assign inside_green1 =
+        (col >= all_coords[39:30]) &&
+        (col <  all_coords[39:30] + SIZE) &&
+        (row >= all_coords[29:20]) &&
+        (row <  all_coords[29:20] + SIZE);
+
+    assign inside_green2 =
+        (col >= all_coords[59:50]) &&
+        (col <  all_coords[59:50] + SIZE) &&
+        (row >= all_coords[49:40]) &&
+        (row <  all_coords[49:40] + SIZE);
+        
+    assign inside_green3 =
+        (col >= all_coords[79:70]) &&
+        (col <  all_coords[79:70] + SIZE) &&
+        (row >= all_coords[69:60]) &&
+        (row <  all_coords[69:60] + SIZE);
+
+    assign inside_green4 =
+        (col >= all_coords[99:90]) &&
+        (col <  all_coords[99:90] + SIZE) &&
+        (row >= all_coords[89:80]) &&
+        (row <  all_coords[89:80] + SIZE);
+        
 /**********************************STRIPE**************************************/
     localparam STRIPE_COL = 24;
     localparam STRIPE_X0  = STRIPE_COL * SIZE;   // SIZE = 20
@@ -330,9 +361,21 @@ module game_display (
         else if (valid && inside_stripe)
             RGB = 6'b11_1111;  // white
 
-        // Green square (snake)
-        else if (valid && inside_green)
+        // Green square (snake) //head
+        else if (valid && inside_green0)
             RGB = 6'b00_1100;  // green
+
+        else if (valid && inside_green1)
+            RGB = 6'b11_0000;  // green     //red
+
+        else if (valid && inside_green2)
+            RGB = 6'b00_0011;  // green     //blue
+
+        else if (valid && inside_green3)
+            RGB = 6'b11_1100;  // green     //red + green = yellow
+
+        else if (valid && inside_green4)
+            RGB = 6'b00_1111;  // green    //green + blue
 
         // Apple sprite
         else if (valid && inside_apple1)
