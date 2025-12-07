@@ -98,7 +98,7 @@ localparam int MAX_SEGMENTS = 30;
     );
 
 /************************************RANDOM************************************/
-    logic [9:0] new_APPLE1_X0, new_APPLE1_Y0; //coordinates within 24x24 grid of superpixels
+    logic [4:0] new_APPLE1_X0, new_APPLE1_Y0; //coordinates within 24x24 grid of superpixels
     
     //module to generate random apple positions
     random my_random (
@@ -108,7 +108,7 @@ localparam int MAX_SEGMENTS = 30;
     );
 
 /*******************************SNAKE******************************************/
-    logic [(MAX_SEGMENTS*20 - 1):0] all_coords; //like our ram (10 bits per coord, 5 coords)
+    logic [(MAX_SEGMENTS*10 - 1):0] all_coords; //like our ram (10 bits per coord, 5 coords)
 
 /*******************************STATE MACHINE**********************************/
 //inputs for state machine
@@ -119,15 +119,15 @@ localparam int MAX_SEGMENTS = 30;
     // logic [2:0] move_dir;
 
     //snake position
-    logic [9:0] GREEN_X0;
-    logic [9:0] GREEN_Y0;
+    logic [4:0] GREEN_X0;
+    logic [4:0] GREEN_Y0;
 
     //food position
-    logic [9:0] APPLE1_X0;
-    logic [9:0] APPLE1_Y0;
+    logic [4:0] APPLE1_X0;
+    logic [4:0] APPLE1_Y0;
 
     //score
-    logic [9:0] current_score;
+    logic [5:0] current_score;
     
     //snake length
     // logic [67:0] snake_length;
@@ -145,10 +145,10 @@ localparam int MAX_SEGMENTS = 30;
     //new apple positions (initialized in RANDOM)
     //out of bound check
     logic outside_frame;
-    logic [9:0] next_GREEN_X0, next_GREEN_Y0;
-    logic [9:0] next_APPLE1_X0, next_APPLE1_Y0; //ACTUAL on 640x480 coordinates of apple
-    logic [9:0] next_score;
-    logic [(MAX_SEGMENTS*20 - 1):0] next_all_coords;
+    logic [4:0] next_GREEN_X0, next_GREEN_Y0;
+    logic [4:0] next_APPLE1_X0, next_APPLE1_Y0; //ACTUAL on 640x480 coordinates of apple
+    logic [5:0] next_score;
+    logic [(MAX_SEGMENTS*10 - 1):0] next_all_coords;
 
 
     assign outside_frame =
@@ -158,16 +158,16 @@ localparam int MAX_SEGMENTS = 30;
     (GREEN_Y0 < 20);     // Y >= 480
 
     logic hit_body;
-    logic [9:0] length;
+    logic [5:0] length;
     assign length = current_score + 10'd5;
-    logic [9:0] seg_x, seg_y;
+    logic [4:0] seg_x, seg_y;
     int offset = 0;
 
     always_comb begin
         hit_body = 1'b0;
         offset        = 0;      // ← fixes latch
-        seg_x         = 10'd0;
-        seg_y         = 10'd0;
+        seg_x         = 5'd0;
+        seg_y         = 5'd0;
 
         for (int i = 0; i < MAX_SEGMENTS; i++) begin
                 if (i < length && i != 0) begin
@@ -335,27 +335,27 @@ localparam int MAX_SEGMENTS = 30;
 
             WAITING: begin
                 //set snake position to original
-                next_GREEN_X0 = 10'd200;
-                next_GREEN_Y0 = 10'd200;
+                next_GREEN_X0 = 5'd10;
+                next_GREEN_Y0 = 5'd10;
                 
                 next_all_coords = 
-                    {10'd120, 10'd200, 
-                    10'd140, 10'd200, 
-                    10'd160, 10'd200, 
-                    10'd180, 10'd200,
-                    10'd200, 10'd200}; //least signif (head)
+                    {5'd6, 5'd10, 
+                    5'd7, 5'd10, 
+                    5'd8, 5'd10, 
+                    5'd9, 5'd10,
+                    5'd10, 5'd10}; //least signif (head)
 
 
                 //SET APPLE ORIGIN
-                next_APPLE1_X0 = 10'd300;
-                next_APPLE1_Y0 = 10'd200;
+                next_APPLE1_X0 = 5'd15;
+                next_APPLE1_Y0 = 5'd10;
 
                 //score to 0
-                next_score = 10'd0;
+                next_score = 6'd0;
             end
 
             UP: begin
-                next_GREEN_Y0 = GREEN_Y0 - 20;
+                next_GREEN_Y0 = GREEN_Y0 - 1;
                 next_GREEN_X0  = GREEN_X0;
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;

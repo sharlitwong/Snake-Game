@@ -3,8 +3,8 @@
 
 module random (
     input logic signal,
-    output logic [9:0] newfood_H,
-    output logic [9:0] newfood_V
+    output logic [4:0] newfood_H,
+    output logic [4:0] newfood_V
 );
 
     logic [9:0] lfsr_H = 10'b1;   // cannot start at 0

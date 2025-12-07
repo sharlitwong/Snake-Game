@@ -325,8 +325,8 @@ module game_display (
 
 
 /********************************SCORE_DISPLAY (label)*************************/
-    logic [9:0] SCORE_X0 = 530;   // OK (200 % 20 = 0)
-    logic [9:0] SCORE_Y0 = 40;   // OK (140 % 20 = 0)
+    localparam SCORE_X0 = 26;   
+    localparam SCORE_Y0 = 2;   
     logic inside_score;
     localparam SCORE_SIZE_X = 100;
     localparam SCORE_SIZE_Y = 20;
@@ -342,10 +342,10 @@ module game_display (
 
     //determine if is inside snake
     assign inside_score =
-        (col >= SCORE_X0) &&
-        (col <  SCORE_X0 + SCORE_SIZE_X) &&
-        (row >= SCORE_Y0) &&
-        (row <  SCORE_Y0 + SCORE_SIZE_Y);
+        (col >= SCORE_X0*20) &&
+        (col <  SCORE_X0*20 + SCORE_SIZE_X) &&
+        (row >= SCORE_Y0*20) &&
+        (row <  SCORE_Y0*20 + SCORE_SIZE_Y);
 
     // Compute local coordinates
     always_comb begin
