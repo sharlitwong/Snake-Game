@@ -14,6 +14,8 @@ module top (
     input logic nes_data_pin, // actual FPGA pin from controller
 );
 
+localparam int MAX_SEGMENTS = 30;
+
 /******************************CLOCKS******************************************/
     //pll clock for VGA display: 25.2MHz
     mypll my_pll (
@@ -63,7 +65,8 @@ module top (
         .state(state),
         
         //output: RGB
-        .RGB(RGB),      
+        .RGB(RGB), 
+        .apple_signal(apple_signal),     
     );
 
 
@@ -104,60 +107,8 @@ module top (
         .newfood_V(new_APPLE1_Y0)
     );
 
-/*******************************SNAKE RAM**************************************/
-
-    // logic button_record;
-    // logic [9:0] coordinates;
-    // logic [2:0] addr;
-    // logic enable_w;
-
-    // assign enable_w = 
-    // (state == UP) ||
-    // (state == DOWN) ||
-    // (state == RIGHT) ||
-    // (state == LEFT);
-    
-    //modify coordinates based on coordinates of the block before it
-    //What we have: head coordinates: GREEN_X0, GREEN_Y0
-
-    //original coordinate
-
-    //how to know coordinates of a block:
-    //SIZE = 20
-    //head: coordinates of head: GREEN_X0 = 10'd200, GREEN_Y0 = 10'200
-    //segment1: GREEN_X1 = GREEN_X0 - SIZE * 1, GREEN_Y1 = GREEN_Y0
-    //segment2: GREEN_X2 = GREEN_X0 - SIZE * 2, GREEN_Y2 = GREEN_Y0
-    //segment3: GREEN_X3 = GREEN_X0 - SIZE * 3, GREEN_Y3 = GREEN_Y0
-    //segment4: GREEN_X4 = GREEN_X0 - SIZE * 4, GREEN_Y3 = GREEN_Y0
-    //segment5: GREEN_X5 = GREEN_X0 - SIZE * 5, GREEN_Y3 = GREEN_Y0
-
-    //WHILE MOVING (shift reg: shift_reg <= {shift_reg[6:0], data};)
-    logic [399:0] all_coords; //like our ram (10 bits per coord, 5 coords)
-    
-    //WHILE MOVING (shift reg: all_coords <= {all_coords[39:0], [GREEN_X0, GREEN_Y0]};)
-    // GREEN_X0 <= new_GREEN_X0
-    // GREEN_X1 <= GREEN_X0
-    // GREEN_X2 <= GREEN_X1
-    // GREEN_X3 <= GREEN_X2
-    //same for y
-
-    // logic [49:0] all_coords;
-    // always_ff @(game_clk) begin
-    //     all_coords <= {all_coords[39:0], [GREEN_X0, GREEN_Y0]};
-    // end
-
-    // snake #(
-    //     .WORD_SIZE (10),
-    //     .N_WORDS (5),
-    //     .ADDR_WIDTH (3)
-    // )ramdp(
-    //     .w_data (coordinates), //encoded data (coordinates)
-    //     .r_data (coordinates), //encoded data (coordinates)
-    //     .r_addr (addr), //which segment of the snake we're at 0-4
-    //     .w_addr (addr), //which segment of the snake we're at 0-4
-    //     .w_enable (enable_w), //only true when up, down, left, right //pending: eat apple
-    //     .clk (game_clk) //vga_clk
-    // );
+/*******************************SNAKE******************************************/
+    logic [(MAX_SEGMENTS*20 - 1):0] all_coords; //like our ram (10 bits per coord, 5 coords)
 
 /*******************************STATE MACHINE**********************************/
 //inputs for state machine
@@ -197,7 +148,7 @@ module top (
     logic [9:0] next_GREEN_X0, next_GREEN_Y0;
     logic [9:0] next_APPLE1_X0, next_APPLE1_Y0; //ACTUAL on 640x480 coordinates of apple
     logic [9:0] next_score;
-    logic [399:0] next_all_coords;
+    logic [(MAX_SEGMENTS*20 - 1):0] next_all_coords;
 
 
     assign outside_frame =
@@ -206,28 +157,27 @@ module top (
     (GREEN_X0 < 20) ||
     (GREEN_Y0 < 20);     // Y >= 480
 
-    // logic hit_body;
-    // assign hit_body = 1'b0;
-    // logic [9:0] length;
-    // assign length = current_score + 10'd5;
-    // logic [9:0] seg_x, seg_y;
-    // for (int i = 0; i < MAX_SEGMENTS; i++) begin
-    //         if (i < length && i != 0) begin
-    //             offset = i * 20;
-    //             seg_x = all_coords[(offset + 19):(offset + 10)];
-    //             seg_y = all_coords[(offset + 9):offset];
-    //             if(all_coords[19:10] == seg_x && all_coords[9:0]) hit_body = 1'b1;
-    //         end
-    // end
+    logic hit_body;
+    logic [9:0] length;
+    assign length = current_score + 10'd5;
+    logic [9:0] seg_x, seg_y;
+    int offset = 0;
 
-    // localparam int MAX_SEGMENTS = 67;
-    // logic body_hit;
-    // logic [9:0] length;
-    // assign length = current_score + 10'd5;
-    
-    // for(int i = 0; i < MAX_SEGMENTS; i++) begin
-    //     if(GREEN_X0 == all_coords[] && GREEN_Y0 == all_coords)
-    // end
+    always_comb begin
+        hit_body = 1'b0;
+        offset        = 0;      // ← fixes latch
+        seg_x         = 10'd0;
+        seg_y         = 10'd0;
+
+        for (int i = 0; i < MAX_SEGMENTS; i++) begin
+                if (i < length && i != 0) begin
+                    offset = i * 20;
+                    seg_x = all_coords[(offset + 19):(offset + 10)];
+                    seg_y = all_coords[(offset + 9):offset];
+                    if(all_coords[19:10] == seg_x && all_coords[9:0] == seg_y) hit_body = 1'b1;
+                end
+        end
+    end
 
     //State encodings
     typedef enum logic [3:0] {
@@ -279,7 +229,7 @@ module top (
         end
 
         //Die
-        else if (outside_frame)
+        else if (outside_frame || hit_body)
             next_state = GAME_OVER;
         
         //Moving 
@@ -410,7 +360,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[379:0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[(MAX_SEGMENTS*20 - 21):0], next_GREEN_X0, next_GREEN_Y0};
             end
             DOWN: begin
                 next_GREEN_Y0 = GREEN_Y0 + 20;
@@ -418,7 +368,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[379:0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[(MAX_SEGMENTS*20 - 21):0], next_GREEN_X0, next_GREEN_Y0};
             end
             LEFT: begin
                 next_GREEN_X0 = GREEN_X0 - 20; 
@@ -426,7 +376,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[379:0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[(MAX_SEGMENTS*20 - 21):0], next_GREEN_X0, next_GREEN_Y0};
             end
             RIGHT: begin
                 next_GREEN_X0 = GREEN_X0 + 20;
@@ -434,7 +384,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[379:0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[(MAX_SEGMENTS*20 - 21):0], next_GREEN_X0, next_GREEN_Y0};
             end                         
  
             default: //defaults

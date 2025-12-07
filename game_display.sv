@@ -7,8 +7,9 @@ module game_display (
     input logic valid,
     input logic [9:0] current_score, //initialize score (0 - 576)
     input logic [3:0] state,
-    input logic [399:0] all_coords,
-    output logic [5:0] RGB
+    input logic [599:0] all_coords,
+    output logic [5:0] RGB,
+    input logic apple_signal
 );    
 
 /*********************************ROM******************************************/
@@ -255,7 +256,7 @@ module game_display (
     end
 
 /*********************************SNAKE****************************************/
-    localparam int MAX_SEGMENTS = 67;
+    localparam int MAX_SEGMENTS = 30;
     logic inside_snake [0:(MAX_SEGMENTS - 1)];
     logic [9:0] length;
     assign length = current_score + 10'd5;
@@ -384,8 +385,8 @@ module game_display (
             else if (valid && inside_stripe_bottom)
                 RGB = 6'b11_1111;  // white 
 
-            else if (valid && inside_apple1) 
-                RGB = rom_data;
+            // else if (valid && inside_apple1) 
+            //     RGB = rom_data;
                        
             //most significant digit of score
             else if (valid && inside_digit2)
@@ -434,21 +435,21 @@ module game_display (
                     4'b1001: RGB = rom_data_nine;
                     default: RGB = rom_data_zero;
                 endcase 
+            else if (valid && inside_apple1 && !apple_signal)
+                RGB = rom_data;   // apple
 
             else begin
-                // if (!inside_apple1) begin
                 if(valid) begin
-                    for (int i = 0; i < MAX_SEGMENTS; i++) begin
-                        if (i < length && inside_snake[i]) begin
-                            if (i % 5 == 0)      RGB = 6'b00_1100;
-                            else if (i % 5 == 1) RGB = 6'b11_0000;
-                            else if (i % 5 == 2) RGB = 6'b00_0011;
-                            else if (i % 5 == 3) RGB = 6'b11_1100;
-                            else if (i % 5 == 4) RGB = 6'b00_1111;
-                        end 
-                    end
+                        for (int i = 0; i < MAX_SEGMENTS; i++) begin
+                            if (i < length && inside_snake[i]) begin
+                                if (i % 5 == 0)      RGB = 6'b00_1100;
+                                else if (i % 5 == 1) RGB = 6'b11_0000;
+                                else if (i % 5 == 2) RGB = 6'b00_0011;
+                                else if (i % 5 == 3) RGB = 6'b11_1100;
+                                else if (i % 5 == 4) RGB = 6'b00_1111;
+                            end 
+                        end
                 end
-                // end else RGB = rom_data;
             end
     end
 
