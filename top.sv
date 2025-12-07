@@ -71,7 +71,6 @@ assign buzzer = apple_signal || outside_frame || hit_body;
         .apple_signal(apple_signal),     
     );
 
-
 /**************************************NES*************************************/
         logic [7:0] buttons;
         logic button_up;
@@ -166,13 +165,13 @@ assign buzzer = apple_signal || outside_frame || hit_body;
     int offset = 0;
 
     always_comb begin
-        hit_body = 1'b0;
+        hit_body      = 1'b0;
         offset        = 0;      // ← fixes latch
         seg_x         = 5'd0;
         seg_y         = 5'd0;
 
-        for (int i = 0; i < MAX_SEGMENTS; i++) begin
-                if (i < length && i != 0) begin
+        for (int i = 1; i < MAX_SEGMENTS; i++) begin
+                if (i < length) begin
                     offset = i * 10;
                     seg_x = all_coords[(offset + 9):(offset + 5)];
                     seg_y = all_coords[(offset + 4):offset];
