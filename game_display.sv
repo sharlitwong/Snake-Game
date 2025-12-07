@@ -377,13 +377,13 @@ module game_display (
 
             // Stripe right
             else if (valid && inside_stripe)
-                RGB = 6'b11_0011;  // pink
+                RGB = 6'b11_1111;  // white
             else if (valid && inside_stripe_left)
-                RGB = 6'b11_0011;  // pink             RGB = 6'b11_1111;  // white 
+                RGB = 6'b11_1111;  // white             RGB = 6'b11_1111;  // white 
             else if (valid && inside_stripe_top)
-                RGB = 6'b11_0011;  // pink
+                RGB = 6'b11_1111;  // white 
             else if (valid && inside_stripe_bottom)
-                RGB = 6'b11_0011;  // pink 
+                RGB = 6'b11_1111;  // white 
 
             // else if (valid && inside_apple1) 
             //     RGB = rom_data;
