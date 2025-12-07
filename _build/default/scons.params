@@ -1,4 +1,4 @@
-timestamp: "07002929123"
+timestamp: "07133543520"
 arch: ICE40
 fpga_info {
   fpga_id: "ice40up5k-sg48"
@@ -15,8 +15,8 @@ environment {
   terminal_mode: FORCE_TERMINAL
   theme_name: "light"
   debug_level: 0
-  yosys_path: "C:\\Users\\maiph\\.apio\\packages\\oss-cad-suite\\share\\yosys"
-  trellis_path: "C:\\Users\\maiph\\.apio\\packages\\oss-cad-suite\\share\\trellis"
+  yosys_path: "C:\\Users\\czw11\\.apio\\packages\\oss-cad-suite\\share\\yosys"
+  trellis_path: "C:\\Users\\czw11\\.apio\\packages\\oss-cad-suite\\share\\trellis"
 }
 apio_env_params {
   env_name: "default"
@@ -25,6 +25,6 @@ apio_env_params {
 }
 target {
   upload {
-    programmer_cmd: "iceprog -d d:1/31 $SOURCE"
+    programmer_cmd: "iceprog -d d:2/5 $SOURCE"
   }
 }
