@@ -132,7 +132,7 @@ module top (
     //segment5: GREEN_X5 = GREEN_X0 - SIZE * 5, GREEN_Y3 = GREEN_Y0
 
     //WHILE MOVING (shift reg: shift_reg <= {shift_reg[6:0], data};)
-    logic [99:0] all_coords; //like our ram (10 bits per coord, 5 coords)
+    logic [399:0] all_coords; //like our ram (10 bits per coord, 5 coords)
     
     //WHILE MOVING (shift reg: all_coords <= {all_coords[39:0], [GREEN_X0, GREEN_Y0]};)
     // GREEN_X0 <= new_GREEN_X0
@@ -177,6 +177,11 @@ module top (
 
     //score
     logic [9:0] current_score;
+    
+    //snake length
+    // logic [67:0] snake_length;
+    // logic [67:0] next_snake_length;
+
 
     //signal apple
     logic apple_signal; 
@@ -192,14 +197,37 @@ module top (
     logic [9:0] next_GREEN_X0, next_GREEN_Y0;
     logic [9:0] next_APPLE1_X0, next_APPLE1_Y0; //ACTUAL on 640x480 coordinates of apple
     logic [9:0] next_score;
-    logic [99:0] next_all_coords;
+    logic [399:0] next_all_coords;
 
 
     assign outside_frame =
-    (GREEN_X0 >= 24*20) ||   // X >= 480
-    (GREEN_Y0 >= 24*20) ||
-    (GREEN_X0 <= 0) ||
-    (GREEN_Y0 <= 0);     // Y >= 480
+    (GREEN_X0 > 24*20) ||   // X >= 480
+    (GREEN_Y0 > 22*20) ||
+    (GREEN_X0 < 20) ||
+    (GREEN_Y0 < 20);     // Y >= 480
+
+    // logic hit_body;
+    // assign hit_body = 1'b0;
+    // logic [9:0] length;
+    // assign length = current_score + 10'd5;
+    // logic [9:0] seg_x, seg_y;
+    // for (int i = 0; i < MAX_SEGMENTS; i++) begin
+    //         if (i < length && i != 0) begin
+    //             offset = i * 20;
+    //             seg_x = all_coords[(offset + 19):(offset + 10)];
+    //             seg_y = all_coords[(offset + 9):offset];
+    //             if(all_coords[19:10] == seg_x && all_coords[9:0]) hit_body = 1'b1;
+    //         end
+    // end
+
+    // localparam int MAX_SEGMENTS = 67;
+    // logic body_hit;
+    // logic [9:0] length;
+    // assign length = current_score + 10'd5;
+    
+    // for(int i = 0; i < MAX_SEGMENTS; i++) begin
+    //     if(GREEN_X0 == all_coords[] && GREEN_Y0 == all_coords)
+    // end
 
     //State encodings
     typedef enum logic [3:0] {
@@ -228,6 +256,7 @@ module top (
             current_score <= next_score;
             // all_coords <= {all_coords[39:0], next_GREEN_X0, next_GREEN_Y0};
             all_coords <= next_all_coords;
+            // snake_length <= next_snake_length;
         // end
     end
     
@@ -262,6 +291,8 @@ module top (
             if (state != RIGHT) next_state = LEFT;
         end else if (button_right) begin
             if (state != LEFT) next_state = RIGHT;
+
+        //Eat
         end else if (state == EAT_APPLE_UP)
             next_state = UP;
         else if (state == EAT_APPLE_DOWN)
@@ -270,6 +301,14 @@ module top (
             next_state = LEFT;
         else if (state == EAT_APPLE_RIGHT)
             next_state = RIGHT;
+
+        //Wait
+        else if (state == WAITING)
+            if      (button_up) next_state = UP;
+            else if (button_down) next_state = DOWN;
+            else if (button_right) next_state = RIGHT;
+            else if (button_left) next_state = RIGHT;
+            else    next_state = state;
         else
             next_state = state;
         
@@ -283,8 +322,8 @@ module top (
                 next_score = current_score + 1;
 
                 //apple position update
-                next_APPLE1_X0 = new_APPLE1_X0 * 20;
-                next_APPLE1_Y0 = new_APPLE1_Y0 * 20;
+                next_APPLE1_X0 = new_APPLE1_X0 * 20 + 40;
+                next_APPLE1_Y0 = new_APPLE1_Y0 * 20 + 40;
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
@@ -297,8 +336,8 @@ module top (
                 next_score = current_score + 1;
 
                 //apple position update
-                next_APPLE1_X0 = new_APPLE1_X0 * 20;
-                next_APPLE1_Y0 = new_APPLE1_Y0 * 20;
+                next_APPLE1_X0 = new_APPLE1_X0 * 20 + 40;
+                next_APPLE1_Y0 = new_APPLE1_Y0 * 20 + 40;
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
@@ -311,8 +350,8 @@ module top (
                 next_score = current_score + 1;
 
                 //apple position update
-                next_APPLE1_X0 = new_APPLE1_X0 * 20;
-                next_APPLE1_Y0 = new_APPLE1_Y0 * 20;
+                next_APPLE1_X0 = new_APPLE1_X0 * 20 + 40;
+                next_APPLE1_Y0 = new_APPLE1_Y0 * 20 + 40;
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
@@ -325,8 +364,8 @@ module top (
                 next_score = current_score + 1;
 
                 //apple position update
-                next_APPLE1_X0 = new_APPLE1_X0 * 20;
-                next_APPLE1_Y0 = new_APPLE1_Y0 * 20;
+                next_APPLE1_X0 = new_APPLE1_X0 * 20 + 40;
+                next_APPLE1_Y0 = new_APPLE1_Y0 * 20 + 40;
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
@@ -371,7 +410,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[79:0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[379:0], next_GREEN_X0, next_GREEN_Y0};
             end
             DOWN: begin
                 next_GREEN_Y0 = GREEN_Y0 + 20;
@@ -379,7 +418,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[79:0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[379:0], next_GREEN_X0, next_GREEN_Y0};
             end
             LEFT: begin
                 next_GREEN_X0 = GREEN_X0 - 20; 
@@ -387,7 +426,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[79:0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[379:0], next_GREEN_X0, next_GREEN_Y0};
             end
             RIGHT: begin
                 next_GREEN_X0 = GREEN_X0 + 20;
@@ -395,7 +434,7 @@ module top (
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[79:0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[379:0], next_GREEN_X0, next_GREEN_Y0};
             end                         
  
             default: //defaults

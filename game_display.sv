@@ -1,6 +1,4 @@
 module game_display (
-//    input logic [9:0] GREEN_X0,
-//    input logic [9:0] GREEN_Y0,
    input logic [9:0] APPLE1_X0,
    input logic [9:0] APPLE1_Y0,
     input logic clk,
@@ -9,7 +7,7 @@ module game_display (
     input logic valid,
     input logic [9:0] current_score, //initialize score (0 - 576)
     input logic [3:0] state,
-    input logic [99:0] all_coords,
+    input logic [399:0] all_coords,
     output logic [5:0] RGB
 );    
 
@@ -24,11 +22,11 @@ module game_display (
 /*********************************SCORE NUMBERS *******************************/
     //coordinates of the three digit score
     //most significant digit of score
-    logic [9:0] digit_2X = 540;
+    logic [9:0] digit_2X = 550;
     logic [9:0] digit_2Y = 80;
-    logic [9:0] digit_1X = 560;
+    logic [9:0] digit_1X = 570;
     logic [9:0] digit_1Y = 80;
-    logic [9:0] digit_0X = 580;
+    logic [9:0] digit_0X = 590;
     logic [9:0] digit_0Y = 80;
     //least significant digit of score
 
@@ -257,58 +255,76 @@ module game_display (
     end
 
 /*********************************SNAKE****************************************/
-    // logic snake_array [0:67];
+    localparam int MAX_SEGMENTS = 67;
+    logic inside_snake [0:(MAX_SEGMENTS - 1)];
+    logic [9:0] length;
+    assign length = current_score + 10'd5;
+    logic [9:0] seg_x, seg_y;
+    int offset = 0;
+
+    always_comb begin
+        for (int k = 0; k < MAX_SEGMENTS; k++) begin
+            inside_snake[k] = 1'b0;
+        end
+        
+        offset        = 0;      // ← fixes latch
+        seg_x         = 10'd0;
+        seg_y         = 10'd0;
+
+        for (int i = 0; i < MAX_SEGMENTS; i++) begin
+            if (i < length) begin
+                offset = i * 20;
+                seg_x = all_coords[(offset + 19):(offset + 10)];
+                seg_y = all_coords[(offset + 9):offset];
+
+                if (col >= seg_x && col < (seg_x + SIZE) &&
+                    row >= seg_y && row < (seg_y + SIZE)) begin
+                        inside_snake[i] = 1'b1;
+                end   
+            end
+        end
+    end
+        
+/**********************************STRIPES*************************************/
+    localparam STRIPE_COL = 25;
+    localparam STRIPE_X0 = STRIPE_COL * SIZE;
     
-    //Variables for snake positions
-    logic inside_green0; //head
-    logic inside_green1;
-    logic inside_green2;
-    logic inside_green3;
-    logic inside_green4;
-
-    //determine if is inside snake
-    assign inside_green0 =
-        (col >= all_coords[19:10]) &&
-        (col <  all_coords[19:10] + SIZE) &&
-        (row >= all_coords[9:0]) &&
-        (row <  all_coords[9:0]+ SIZE); //all_coords x
-
-    assign inside_green1 =
-        (col >= all_coords[39:30]) &&
-        (col <  all_coords[39:30] + SIZE) &&
-        (row >= all_coords[29:20]) &&
-        (row <  all_coords[29:20] + SIZE);
-
-    assign inside_green2 =
-        (col >= all_coords[59:50]) &&
-        (col <  all_coords[59:50] + SIZE) &&
-        (row >= all_coords[49:40]) &&
-        (row <  all_coords[49:40] + SIZE);
-        
-    assign inside_green3 =
-        (col >= all_coords[79:70]) &&
-        (col <  all_coords[79:70] + SIZE) &&
-        (row >= all_coords[69:60]) &&
-        (row <  all_coords[69:60] + SIZE);
-
-    assign inside_green4 =
-        (col >= all_coords[99:90]) &&
-        (col <  all_coords[99:90] + SIZE) &&
-        (row >= all_coords[89:80]) &&
-        (row <  all_coords[89:80] + SIZE);
-        
-/**********************************STRIPE**************************************/
-    localparam STRIPE_COL = 24;
-    localparam STRIPE_X0  = STRIPE_COL * SIZE;   // SIZE = 20
-
     logic inside_stripe;
-
+    
     assign inside_stripe =
         (col >= STRIPE_X0) &&
         (col <  STRIPE_X0 + SIZE);
 
+    localparam STRIPE_COL_LEFT = 0;
+    localparam STRIPE_COL_LEFT_X = STRIPE_COL_LEFT*SIZE; //useless bc it's zero
+
+    logic inside_stripe_left;
+    assign inside_stripe_left =
+        (col >= STRIPE_COL_LEFT_X) &&
+        (col <  STRIPE_COL_LEFT_X + SIZE);
+
+    localparam STRIPE_TOP = 0; //y coord (row)
+    localparam STRIPE_TOP_Y = STRIPE_TOP*SIZE; //useless bc it's zero
+    localparam STRIPE_limit = 25*20;
+    logic inside_stripe_top;
+    assign inside_stripe_top =
+        (row >= STRIPE_TOP_Y) &&
+        (row <  STRIPE_TOP_Y + SIZE) &&
+        (col > 0) &&
+        (col < STRIPE_limit);
+
+    localparam STRIPE_BOTTOM = 23; //y coord (row)
+    localparam STRIPE_BOTTOM_Y = STRIPE_BOTTOM*SIZE; //useless bc it's zero
+    logic inside_stripe_bottom;
+    assign inside_stripe_bottom =
+        (row >= STRIPE_BOTTOM_Y) &&
+        (row <  STRIPE_BOTTOM_Y + SIZE) &&
+        (col > 0) &&
+        (col < STRIPE_limit);
+
+
 /********************************SCORE_DISPLAY (label)*************************/
-    logic [9:0] SCORE_X0 = 520;   // OK (200 % 20 = 0)
+    logic [9:0] SCORE_X0 = 530;   // OK (200 % 20 = 0)
     logic [9:0] SCORE_Y0 = 40;   // OK (140 % 20 = 0)
     logic inside_score;
     localparam SCORE_SIZE_X = 100;
@@ -350,84 +366,90 @@ module game_display (
         RGB = 6'd0;
 
         // HIGHEST PRIORITY: game over
-        if (valid && state == 4'b0110)
-            RGB = rom_data_gameover;  // red
+        // if (valid) begin
+            if (valid && state == 4'b0110)
+                RGB = rom_data_gameover;  // red
 
-        // Next priority: score display
-        else if (valid && inside_score)
-            RGB = rom_data_score;
+            // Next priority: score display
+            else if (valid && inside_score)
+                RGB = rom_data_score;
 
-        // Stripe
-        else if (valid && inside_stripe)
-            RGB = 6'b11_1111;  // white
+            // Stripe right
+            else if (valid && inside_stripe)
+                RGB = 6'b11_1111;  // white
+            else if (valid && inside_stripe_left)
+                RGB = 6'b11_1111;  // white             RGB = 6'b11_1111;  // white 
+            else if (valid && inside_stripe_top)
+                RGB = 6'b11_1111;  // white 
+            else if (valid && inside_stripe_bottom)
+                RGB = 6'b11_1111;  // white 
 
-        // Green square (snake) //head
-        else if (valid && inside_green0)
-            RGB = 6'b00_1100;  // green
+            else if (valid && inside_apple1) 
+                RGB = rom_data;
+                       
+            //most significant digit of score
+            else if (valid && inside_digit2)
+                case(hundreds_value)
+                    4'b0000: RGB = rom_data_zero;
+                    4'b0001: RGB = rom_data_one;
+                    4'b0010: RGB = rom_data_two;
+                    4'b0011: RGB = rom_data_three;
+                    4'b0100: RGB = rom_data_four;
+                    4'b0101: RGB = rom_data_five;
+                    4'b0110: RGB = rom_data_six;
+                    4'b0111: RGB = rom_data_seven;
+                    4'b1000: RGB = rom_data_eight;
+                    4'b1001: RGB = rom_data_nine;
+                    default: RGB = rom_data_zero;
+                endcase
 
-        else if (valid && inside_green1)
-            RGB = 6'b11_0000;  // green     //red
+            //middle digit of score
+            else if (valid && inside_digit1)
+                case(tens_value)
+                    4'b0000: RGB = rom_data_zero;
+                    4'b0001: RGB = rom_data_one;
+                    4'b0010: RGB = rom_data_two;
+                    4'b0011: RGB = rom_data_three;
+                    4'b0100: RGB = rom_data_four;
+                    4'b0101: RGB = rom_data_five;
+                    4'b0110: RGB = rom_data_six;
+                    4'b0111: RGB = rom_data_seven;
+                    4'b1000: RGB = rom_data_eight;
+                    4'b1001: RGB = rom_data_nine;
+                    default: RGB = rom_data_zero;
+                endcase
 
-        else if (valid && inside_green2)
-            RGB = 6'b00_0011;  // green     //blue
+            //least signidicant digit of score
+            else if (valid && inside_digit0)
+                case(ones_value)
+                    4'b0000: RGB = rom_data_zero;
+                    4'b0001: RGB = rom_data_one;
+                    4'b0010: RGB = rom_data_two;
+                    4'b0011: RGB = rom_data_three;
+                    4'b0100: RGB = rom_data_four;
+                    4'b0101: RGB = rom_data_five;
+                    4'b0110: RGB = rom_data_six;
+                    4'b0111: RGB = rom_data_seven;
+                    4'b1000: RGB = rom_data_eight;
+                    4'b1001: RGB = rom_data_nine;
+                    default: RGB = rom_data_zero;
+                endcase 
 
-        else if (valid && inside_green3)
-            RGB = 6'b11_1100;  // green     //red + green = yellow
-
-        else if (valid && inside_green4)
-            RGB = 6'b00_1111;  // green    //green + blue
-
-        // Apple sprite
-        else if (valid && inside_apple1)
-            RGB = rom_data;
-
-        //most significant digit of score
-        else if (valid && inside_digit2)
-            case(hundreds_value)
-                4'b0000: RGB = rom_data_zero;
-                4'b0001: RGB = rom_data_one;
-                4'b0010: RGB = rom_data_two;
-                4'b0011: RGB = rom_data_three;
-                4'b0100: RGB = rom_data_four;
-                4'b0101: RGB = rom_data_five;
-                4'b0110: RGB = rom_data_six;
-                4'b0111: RGB = rom_data_seven;
-                4'b1000: RGB = rom_data_eight;
-                4'b1001: RGB = rom_data_nine;
-                default: RGB = rom_data_zero;
-            endcase
-
-        //middle digit of score
-        else if (valid && inside_digit1)
-            case(tens_value)
-                4'b0000: RGB = rom_data_zero;
-                4'b0001: RGB = rom_data_one;
-                4'b0010: RGB = rom_data_two;
-                4'b0011: RGB = rom_data_three;
-                4'b0100: RGB = rom_data_four;
-                4'b0101: RGB = rom_data_five;
-                4'b0110: RGB = rom_data_six;
-                4'b0111: RGB = rom_data_seven;
-                4'b1000: RGB = rom_data_eight;
-                4'b1001: RGB = rom_data_nine;
-                default: RGB = rom_data_zero;
-            endcase
-
-        //least signidicant digit of score
-        else if (valid && inside_digit0)
-            case(ones_value)
-                4'b0000: RGB = rom_data_zero;
-                4'b0001: RGB = rom_data_one;
-                4'b0010: RGB = rom_data_two;
-                4'b0011: RGB = rom_data_three;
-                4'b0100: RGB = rom_data_four;
-                4'b0101: RGB = rom_data_five;
-                4'b0110: RGB = rom_data_six;
-                4'b0111: RGB = rom_data_seven;
-                4'b1000: RGB = rom_data_eight;
-                4'b1001: RGB = rom_data_nine;
-                default: RGB = rom_data_zero;
-            endcase
+            else begin
+                // if (!inside_apple1) begin
+                if(valid) begin
+                    for (int i = 0; i < MAX_SEGMENTS; i++) begin
+                        if (i < length && inside_snake[i]) begin
+                            if (i % 5 == 0)      RGB = 6'b00_1100;
+                            else if (i % 5 == 1) RGB = 6'b11_0000;
+                            else if (i % 5 == 2) RGB = 6'b00_0011;
+                            else if (i % 5 == 3) RGB = 6'b11_1100;
+                            else if (i % 5 == 4) RGB = 6'b00_1111;
+                        end 
+                    end
+                end
+                // end else RGB = rom_data;
+            end
     end
 
 endmodule

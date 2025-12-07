@@ -16,8 +16,8 @@ module random (
         lfsr_V <= {lfsr_V[8:0], lfsr_V[9] ^ lfsr_V[6]};
     end
 
-    // Convert to grid coordinate 0–23
-    assign newfood_H = lfsr_H % 24;
-    assign newfood_V = lfsr_V % 24;
+    // Convert to grid coordinate 0–19
+    assign newfood_H = lfsr_H % 20;
+    assign newfood_V = lfsr_V % 20;
 
 endmodule
