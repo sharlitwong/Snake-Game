@@ -1,13 +1,13 @@
 module game_display (
-   input logic [9:0] APPLE1_X0,
-   input logic [9:0] APPLE1_Y0,
+   input logic [4:0] APPLE1_X0,
+   input logic [4:0] APPLE1_Y0,
     input logic clk,
     input logic [9:0] row,
     input logic [9:0] col,
     input logic valid,
     input logic [9:0] current_score, //initialize score (0 - 576)
     input logic [3:0] state,
-    input logic [599:0] all_coords,
+    input logic [299:0] all_coords,
     output logic [5:0] RGB,
     input logic apple_signal
 );    
@@ -23,12 +23,12 @@ module game_display (
 /*********************************SCORE NUMBERS *******************************/
     //coordinates of the three digit score
     //most significant digit of score
-    logic [9:0] digit_2X = 550;
-    logic [9:0] digit_2Y = 80;
-    logic [9:0] digit_1X = 570;
-    logic [9:0] digit_1Y = 80;
-    logic [9:0] digit_0X = 590;
-    logic [9:0] digit_0Y = 80;
+    localparam digit_2X = 550;
+    localparam digit_2Y = 80;
+    localparam digit_1X = 570;
+    localparam digit_1Y = 80;
+    localparam digit_0X = 590;
+    localparam digit_0Y = 80;
     //least significant digit of score
 
     localparam num_SIZE = 20; //(length = width) of one score pixel (superpixel)
@@ -236,15 +236,15 @@ module game_display (
     );
 
     // Check bounds
-    assign inside_apple1 = (col >= APPLE1_X0 &&
-        col <  APPLE1_X0 + SIZE &&
-        row >= APPLE1_Y0 &&
-        row <  APPLE1_Y0 + SIZE);
+    assign inside_apple1 = (col >= APPLE1_X0*20 &&
+        col <  APPLE1_X0*20 + SIZE &&
+        row >= APPLE1_Y0*20 &&
+        row <  APPLE1_Y0*20 + SIZE);
 
     // Compute local coordinates
     always_comb begin
-        x_in_sprite1 = col - APPLE1_X0;
-        y_in_sprite1 = row - APPLE1_Y0;
+        x_in_sprite1 = col - APPLE1_X0*20;
+        y_in_sprite1 = row - APPLE1_Y0*20;
     end    
 
     // Address ROM
@@ -259,8 +259,8 @@ module game_display (
     localparam int MAX_SEGMENTS = 30;
     logic inside_snake [0:(MAX_SEGMENTS - 1)];
     logic [9:0] length;
-    assign length = current_score + 10'd5;
-    logic [9:0] seg_x, seg_y;
+    assign length = current_score + 10'd1;
+    logic [4:0] seg_x, seg_y;
     int offset = 0;
 
     always_comb begin
@@ -269,17 +269,17 @@ module game_display (
         end
         
         offset        = 0;      // ← fixes latch
-        seg_x         = 10'd0;
-        seg_y         = 10'd0;
+        seg_x         = 5'd0;
+        seg_y         = 5'd0;
 
         for (int i = 0; i < MAX_SEGMENTS; i++) begin
             if (i < length) begin
-                offset = i * 20;
-                seg_x = all_coords[(offset + 19):(offset + 10)];
-                seg_y = all_coords[(offset + 9):offset];
+                offset = i * 10;
+                seg_x = all_coords[(offset + 9):(offset + 5)];
+                seg_y = all_coords[(offset + 4):offset];
 
-                if (col >= seg_x && col < (seg_x + SIZE) &&
-                    row >= seg_y && row < (seg_y + SIZE)) begin
+                if (col >= seg_x*20 && col < (seg_x*20 + SIZE) &&
+                    row >= seg_y*20 && row < (seg_y*20 + SIZE)) begin
                         inside_snake[i] = 1'b1;
                 end   
             end
@@ -342,15 +342,15 @@ module game_display (
 
     //determine if is inside snake
     assign inside_score =
-        (col >= SCORE_X0*20) &&
-        (col <  SCORE_X0*20 + SCORE_SIZE_X) &&
+        (col >= SCORE_X0*20 + 10) &&
+        (col <  SCORE_X0*20 + 10 + SCORE_SIZE_X) &&
         (row >= SCORE_Y0*20) &&
         (row <  SCORE_Y0*20 + SCORE_SIZE_Y);
 
     // Compute local coordinates
     always_comb begin
-        x_in_score = col - SCORE_X0;
-        y_in_score = row - SCORE_Y0;
+        x_in_score = col - SCORE_X0*20 - 10;
+        y_in_score = row - SCORE_Y0*20;
     end    
 
     // Address ROM

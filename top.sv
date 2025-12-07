@@ -12,9 +12,11 @@ module top (
     output logic nes_latch,
     output logic nes_clock,
     input logic nes_data_pin, // actual FPGA pin from controller
+    output logic buzzer
 );
 
 localparam int MAX_SEGMENTS = 30;
+assign buzzer = apple_signal || outside_frame || hit_body;
 
 /******************************CLOCKS******************************************/
     //pll clock for VGA display: 25.2MHz
@@ -127,7 +129,7 @@ localparam int MAX_SEGMENTS = 30;
     logic [4:0] APPLE1_Y0;
 
     //score
-    logic [5:0] current_score;
+    logic [9:0] current_score;
     
     //snake length
     // logic [67:0] snake_length;
@@ -147,19 +149,19 @@ localparam int MAX_SEGMENTS = 30;
     logic outside_frame;
     logic [4:0] next_GREEN_X0, next_GREEN_Y0;
     logic [4:0] next_APPLE1_X0, next_APPLE1_Y0; //ACTUAL on 640x480 coordinates of apple
-    logic [5:0] next_score;
+    logic [9:0] next_score;
     logic [(MAX_SEGMENTS*10 - 1):0] next_all_coords;
 
 
     assign outside_frame =
-    (GREEN_X0 > 24*20) ||   // X >= 480
-    (GREEN_Y0 > 22*20) ||
-    (GREEN_X0 < 20) ||
-    (GREEN_Y0 < 20);     // Y >= 480
+    (GREEN_X0 > 24) ||   // X >= 480
+    (GREEN_Y0 > 22) ||
+    (GREEN_X0 < 1) ||
+    (GREEN_Y0 < 1);     // Y >= 480
 
     logic hit_body;
-    logic [5:0] length;
-    assign length = current_score + 10'd5;
+    logic [9:0] length;
+    assign length = current_score + 10'd1;
     logic [4:0] seg_x, seg_y;
     int offset = 0;
 
@@ -171,10 +173,10 @@ localparam int MAX_SEGMENTS = 30;
 
         for (int i = 0; i < MAX_SEGMENTS; i++) begin
                 if (i < length && i != 0) begin
-                    offset = i * 20;
-                    seg_x = all_coords[(offset + 19):(offset + 10)];
-                    seg_y = all_coords[(offset + 9):offset];
-                    if(all_coords[19:10] == seg_x && all_coords[9:0] == seg_y) hit_body = 1'b1;
+                    offset = i * 10;
+                    seg_x = all_coords[(offset + 9):(offset + 5)];
+                    seg_y = all_coords[(offset + 4):offset];
+                    if(all_coords[9:5] == seg_x && all_coords[4:0] == seg_y) hit_body = 1'b1;
                 end
         end
     end
@@ -204,10 +206,7 @@ localparam int MAX_SEGMENTS = 30;
             APPLE1_X0     <= next_APPLE1_X0;
             APPLE1_Y0     <= next_APPLE1_Y0;
             current_score <= next_score;
-            // all_coords <= {all_coords[39:0], next_GREEN_X0, next_GREEN_Y0};
             all_coords <= next_all_coords;
-            // snake_length <= next_snake_length;
-        // end
     end
     
     //next_state logic
@@ -272,8 +271,8 @@ localparam int MAX_SEGMENTS = 30;
                 next_score = current_score + 1;
 
                 //apple position update
-                next_APPLE1_X0 = new_APPLE1_X0 * 20 + 40;
-                next_APPLE1_Y0 = new_APPLE1_Y0 * 20 + 40;
+                next_APPLE1_X0 = new_APPLE1_X0 + 2;
+                next_APPLE1_Y0 = new_APPLE1_Y0 + 2;
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
@@ -286,8 +285,8 @@ localparam int MAX_SEGMENTS = 30;
                 next_score = current_score + 1;
 
                 //apple position update
-                next_APPLE1_X0 = new_APPLE1_X0 * 20 + 40;
-                next_APPLE1_Y0 = new_APPLE1_Y0 * 20 + 40;
+                next_APPLE1_X0 = new_APPLE1_X0 + 2;
+                next_APPLE1_Y0 = new_APPLE1_Y0 + 2;
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
@@ -300,8 +299,8 @@ localparam int MAX_SEGMENTS = 30;
                 next_score = current_score + 1;
 
                 //apple position update
-                next_APPLE1_X0 = new_APPLE1_X0 * 20 + 40;
-                next_APPLE1_Y0 = new_APPLE1_Y0 * 20 + 40;
+                next_APPLE1_X0 = new_APPLE1_X0 + 2;
+                next_APPLE1_Y0 = new_APPLE1_Y0 + 2;
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
@@ -314,8 +313,8 @@ localparam int MAX_SEGMENTS = 30;
                 next_score = current_score + 1;
 
                 //apple position update
-                next_APPLE1_X0 = new_APPLE1_X0 * 20 + 40;
-                next_APPLE1_Y0 = new_APPLE1_Y0 * 20 + 40;
+                next_APPLE1_X0 = new_APPLE1_X0 + 2;
+                next_APPLE1_Y0 = new_APPLE1_Y0 + 2;
 
                 next_GREEN_X0  = GREEN_X0;
                 next_GREEN_Y0  = GREEN_Y0;
@@ -351,7 +350,7 @@ localparam int MAX_SEGMENTS = 30;
                 next_APPLE1_Y0 = 5'd10;
 
                 //score to 0
-                next_score = 6'd0;
+                next_score = 10'd0;
             end
 
             UP: begin
@@ -360,31 +359,31 @@ localparam int MAX_SEGMENTS = 30;
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[(MAX_SEGMENTS*20 - 21):0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[(MAX_SEGMENTS*10 - 11):0], next_GREEN_X0, next_GREEN_Y0};
             end
             DOWN: begin
-                next_GREEN_Y0 = GREEN_Y0 + 20;
+                next_GREEN_Y0 = GREEN_Y0 + 1;
                 next_GREEN_X0  = GREEN_X0;
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[(MAX_SEGMENTS*20 - 21):0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[(MAX_SEGMENTS*10 - 11):0], next_GREEN_X0, next_GREEN_Y0};
             end
             LEFT: begin
-                next_GREEN_X0 = GREEN_X0 - 20; 
+                next_GREEN_X0 = GREEN_X0 - 1; 
                 next_GREEN_Y0  = GREEN_Y0;
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[(MAX_SEGMENTS*20 - 21):0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[(MAX_SEGMENTS*10 - 11):0], next_GREEN_X0, next_GREEN_Y0};
             end
             RIGHT: begin
-                next_GREEN_X0 = GREEN_X0 + 20;
+                next_GREEN_X0 = GREEN_X0 + 1;
                 next_GREEN_Y0  = GREEN_Y0;
                 next_APPLE1_X0 = APPLE1_X0;
                 next_APPLE1_Y0 = APPLE1_Y0;
                 next_score     = current_score;
-                next_all_coords = {all_coords[(MAX_SEGMENTS*20 - 21):0], next_GREEN_X0, next_GREEN_Y0};
+                next_all_coords = {all_coords[(MAX_SEGMENTS*10 - 11):0], next_GREEN_X0, next_GREEN_Y0};
             end                         
  
             default: //defaults
