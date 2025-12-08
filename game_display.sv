@@ -17,7 +17,7 @@ module game_display (
     // Instantiate ROM
     logic [5:0] rom_data; //apple
     logic [8:0] rom_addr; //apple
-    logic [5:0] rom_data_score;
+    logic [5:0] rom_data_score; //score label
     logic [10:0] rom_addr_score;
 
 /*********************************SCORE NUMBERS *******************************/
@@ -323,6 +323,76 @@ module game_display (
         (col > 0) &&
         (col < STRIPE_limit);
 
+/********************************Animation*************************************/
+
+    localparam animation_x = 28;
+    localparam animation_y = 8;
+    logic insideanimation;
+    localparam animationsize = 32;
+    logic [4:0] x_in_animation;
+    logic [4:0] y_in_animation;
+
+    logic [5:0] middle_data;
+    logic [5:0] right_data;
+    logic [5:0] left_data;
+    logic [9:0] animation_addr;
+
+    logic [23:0] count;
+
+    always_ff @(posedge clk) begin
+        if (count == 24'hFFFFFF) begin
+            count <= 0;
+        end else begin
+            count <= count + 1;
+        end
+    end 
+
+    logic clk_2;
+    assign clk_2 = count[23];
+
+    logic [1:0] slow;
+        always_ff @(posedge clk_2) begin
+        if (slow == 2'b11) begin
+            slow <= 0;
+        end else begin
+            slow <= slow + 1;
+        end
+    end 
+
+    snake_middle my_snake_middle(
+        .clk(clk),
+        .addr(animation_addr),
+        .data(middle_data)
+    );
+    snake_left my_snake_left(
+        .clk(clk),
+        .addr(animation_addr),
+        .data(left_data)
+    );
+    snake_right my_snake_right(
+        .clk(clk),
+        .addr(animation_addr),
+        .data(right_data)
+    );
+
+    assign insideanimation = 
+    row >= animation_y*20 && 
+    row < animation_y*20 + animationsize &&
+    col >= animation_x*20 &&
+    col < animation_x*20 + animationsize;
+
+    always_comb begin
+        x_in_animation = col - animation_x*20;
+        y_in_animation = row - animation_y*20;
+    end  
+
+    always_comb begin
+        if (insideanimation) 
+            animation_addr = y_in_animation * animationsize + x_in_animation;  // 0..399
+        else
+            animation_addr = 0;
+    end
+
 
 /********************************SCORE_DISPLAY (label)*************************/
     localparam SCORE_X0 = 26;   
@@ -437,6 +507,15 @@ module game_display (
                 endcase 
             else if (valid && inside_apple1 && !apple_signal)
                 RGB = rom_data;   // apple
+
+            else if (valid && insideanimation) begin
+                case(slow)
+                    2'b00: RGB = right_data;
+                    2'b01: RGB = middle_data;
+                    2'b10: RGB = left_data;
+                    2'b11: RGB = middle_data;
+                endcase
+            end
 
             else begin
                 if(valid) begin
