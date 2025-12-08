@@ -325,12 +325,15 @@ module game_display (
 
 /********************************Animation*************************************/
 
-    localparam animation_x = 28;
+    localparam animscale = 2;     // double the size
+
+    localparam animation_x = 27;
     localparam animation_y = 8;
     logic insideanimation;
     localparam animationsize = 32;
-    logic [4:0] x_in_animation;
-    logic [4:0] y_in_animation;
+    logic [9:0] x_in_animation;
+    logic [9:0] y_in_animation;
+
 
     logic [5:0] middle_data;
     logic [5:0] right_data;
@@ -375,16 +378,30 @@ module game_display (
         .data(right_data)
     );
 
-    assign insideanimation = 
-    row >= animation_y*20 && 
-    row < animation_y*20 + animationsize &&
+    assign insideanimation =
+    row >= animation_y*20 &&
+    row <  animation_y*20 + animationsize * animscale &&
     col >= animation_x*20 &&
-    col < animation_x*20 + animationsize;
+    col <  animation_x*20 + animationsize * animscale;
 
+
+    // assign insideanimation = 
+    // row >= animation_y*20 && 
+    // row < animation_y*20 + animationsize &&
+    // col >= animation_x*20 &&
+    // col < animation_x*20 + animationsize;
+
+    // always_comb begin
+    //     x_in_animation = col - animation_x*20;
+    //     y_in_animation = row - animation_y*20;
+    // end  
+
+    //compute local internal coordinates
     always_comb begin
-        x_in_animation = col - animation_x*20;
-        y_in_animation = row - animation_y*20;
-    end  
+        x_in_animation = (col - animation_x*20) / animscale;
+        y_in_animation = (row - animation_y*20) / animscale;
+    end
+
 
     always_comb begin
         if (insideanimation) 
