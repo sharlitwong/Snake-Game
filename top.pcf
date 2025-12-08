@@ -12,8 +12,8 @@ set_io RGB[5] 3
 
 #NES
 set_io nes_latch 25
-set_io nes_clock 26
-set_io nes_data_pin 27
+set_io nes_clock 23
+set_io nes_data_pin 26
 
 #buzzer
 set_io buzzer 4
