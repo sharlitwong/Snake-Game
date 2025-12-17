@@ -1,19 +1,19 @@
 from PIL import Image
 
 # Size of our image to generate in ROM memory
-IMAGE_FILE = "redapple.png"      # your 20×20 apple
+IMAGE_FILE = "redapple.png"      #20×20 apple
 SCREEN_WIDTH  = 20
 SCREEN_HEIGHT = 20
 SUPER_W = 20
 SUPER_H = 20
 
-# Load the image
+#Load image
 img = Image.open(IMAGE_FILE).convert("RGB")
 
 if img.size != (SCREEN_WIDTH, SCREEN_HEIGHT):
     raise ValueError(f"Image must be {SCREEN_WIDTH}x{SCREEN_HEIGHT}")
 
-# RGB222 pack
+#RGB222 pack
 def pack_6bit(r, g, b):
     r2 = r >> 6     # top 2 bits
     g2 = g >> 6
