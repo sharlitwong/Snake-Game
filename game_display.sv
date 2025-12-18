@@ -7,7 +7,7 @@ module game_display (
     input logic valid,
     input logic [9:0] current_score, //initialize score (0 - 576)
     input logic [3:0] state,
-    input logic [299:0] all_coords,
+    input logic [329:0] all_coords,
     output logic [5:0] RGB,
     input logic apple_signal
 );    
@@ -142,7 +142,7 @@ module game_display (
         .score(current_score),
         .ones(ones_value),
         .tens(tens_value),
-        .hundreds(hundreds_value),
+        .hundreds(hundreds_value)
     );
 
     logic [4:0] x_in_digit2; //local x for most significant digit
@@ -256,7 +256,7 @@ module game_display (
     end
 
 /*********************************SNAKE****************************************/
-    localparam int MAX_SEGMENTS = 30;
+    localparam int MAX_SEGMENTS = 33;
     logic inside_snake [0:(MAX_SEGMENTS - 1)];
     logic [9:0] length;
     assign length = current_score + 10'd1;
@@ -268,7 +268,7 @@ module game_display (
             inside_snake[k] = 1'b0;
         end
         
-        offset        = 0;      // ← fixes latch
+        offset        = 0;      //fixes latch
         seg_x         = 5'd0;
         seg_y         = 5'd0;
 

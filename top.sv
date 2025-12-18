@@ -15,7 +15,7 @@ module top (
     output logic buzzer
 );
 
-localparam int MAX_SEGMENTS = 30;
+localparam int MAX_SEGMENTS = 33;
 assign buzzer = apple_signal || outside_frame || hit_body;
 
 /******************************CLOCKS******************************************/
